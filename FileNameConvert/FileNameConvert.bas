@@ -1,15 +1,18 @@
 Attribute VB_Name = "FileNameConvert"
 Option Explicit
 
-'方法① FileSystemObject
+'方法① FileSystemObject 長いパスに対応
 Public Sub ファイル名取得()
 
 Dim FolderName As String
 Dim endRow As Long
-Dim fso As Object
+Dim Fso As Object
 Dim iFolder As Object
 Dim iFile As Object
 Dim iRow As Long
+Dim i As Long
+Dim f As Object
+
 
     '取得場所
     FolderName = Range("G1").Value
@@ -21,10 +24,22 @@ Dim iRow As Long
     Range(Cells(2, "A"), Cells(endRow, "C")).ClearContents
     
     
-    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set Fso = CreateObject("Scripting.FileSystemObject")
     
     'フォルダの取得
-    Set iFolder = fso.GetFolder(FolderName)
+    Set iFolder = Fso.GetFolder(ChangeShortPath(FolderName))
+        
+    
+    For Each f In iFolder.Files: i = i + 1: Next f
+    
+    If iFolder.Files.Count <> i Then
+    
+        Set iFolder = Fso.GetFolder(iFolder.ShortPath)
+    
+    End If
+    
+    
+
     
     '行数
     iRow = 2
@@ -33,8 +48,8 @@ Dim iRow As Long
     For Each iFile In iFolder.Files
     
     
-        Cells(iRow, 1).Value = iFile.Path
-        Cells(iRow, 2).Value = iFile.ParentFolder
+        Cells(iRow, 1).Value = FolderName & "\" & iFile.Name
+        Cells(iRow, 2).Value = FolderName
         Cells(iRow, 3).Value = iFile.Name
         
         iRow = iRow + 1
@@ -132,11 +147,13 @@ Dim i As Long
   
 End Sub
 
-Public Sub ファイル名変更()
-Dim fso As Object
+Public Sub ファイル名変更()  '長いパス対応
+Dim Fso As Object
 
 Dim fileFullPath As String
 Dim newfileName As String
+Dim FolderName As String
+Dim FolderShortName As String
 Dim iRow As Long
 
     iRow = 2
@@ -153,13 +170,20 @@ Dim iRow As Long
              newfileName = .Cells(iRow, "B").Value
              
              
-             Set fso = CreateObject("Scripting.FileSystemObject")
+             Set Fso = CreateObject("Scripting.FileSystemObject")
+             
+             If Len(fileFullPath) > 259 Then
+                
+            
+                fileFullPath = ChangeShortPath(fileFullPath)
+                             
+             End If
              
              'ファイル名を変更
-             fso.GetFile(fileFullPath).Name = newfileName
+             Fso.GetFile(fileFullPath).Name = newfileName
              
              '後片付け
-             Set fso = Nothing
+             Set Fso = Nothing
              
          
              iRow = iRow + 1
@@ -171,4 +195,3 @@ Dim iRow As Long
      MsgBox "完了しました"
      
 End Sub
-

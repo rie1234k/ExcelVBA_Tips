@@ -1,14 +1,16 @@
 Attribute VB_Name = "FolderNameConvert"
 Option Explicit
 
-'方法① FileSystemObject
+'方法① FileSystemObject　長いパスに対応
 Public Sub フォルダ名取得()
 Dim FolderName As String
 Dim endRow As Long
-Dim fso As Object
+Dim Fso As Object
 Dim iFolder As Object
 Dim subFolder As Object
 Dim iRow As Long
+Dim i As Long
+Dim f As Object
 
     '取得場所
     FolderName = Range("G1").Value
@@ -20,10 +22,19 @@ Dim iRow As Long
     Range(Cells(2, "A"), Cells(endRow, "B")).ClearContents
     
     
-    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set Fso = CreateObject("Scripting.FileSystemObject")
     
     'フォルダの取得
-    Set iFolder = fso.GetFolder(FolderName)
+    Set iFolder = Fso.GetFolder(ChangeShortPath(FolderName))
+    
+    For Each f In iFolder.SubFolders: i = i + 1: Next f
+    
+    If iFolder.SubFolders.Count <> i Then
+    
+        Set iFolder = Fso.GetFolder(iFolder.ShortPath)
+    
+    End If
+    
     
     '行数
     iRow = 2
@@ -32,13 +43,12 @@ Dim iRow As Long
     For Each subFolder In iFolder.SubFolders
     
     
-        Cells(iRow, 1).Value = subFolder.Path
+        Cells(iRow, 1).Value = FolderName & "\" & subFolder.Name
         Cells(iRow, 2).Value = subFolder.Name
         
         iRow = iRow + 1
         
     Next subFolder
-    
     
     
 
@@ -92,9 +102,9 @@ Set wsh = Nothing
 
 End Sub
 
-Public Sub フォルダ名変更()
+Public Sub フォルダ名変更()  '長いパス対応
 
-Dim fso As Object
+Dim Fso As Object
 
 Dim folderFullPath As String
 Dim newFolderName As String
@@ -102,7 +112,7 @@ Dim iRow As Long
 
     iRow = 2
     
-  With ThisWorkbook.Sheets("フォルダ名変更")
+    With ThisWorkbook.Sheets("フォルダ名変更")
   
     
         Do
@@ -114,13 +124,21 @@ Dim iRow As Long
              newFolderName = .Cells(iRow, "B").Value
              
              
-             Set fso = CreateObject("Scripting.FileSystemObject")
+             Set Fso = CreateObject("Scripting.FileSystemObject")
+             
+             If Len(folderFullPath) > 259 Then
+                
+            
+                folderFullPath = ChangeShortPath(folderFullPath)
+                             
+             End If
+             
              
              'フォルダ名を変更
-             fso.GetFolder(folderFullPath).Name = newFolderName
+             Fso.GetFolder(folderFullPath).Name = newFolderName
              
              '後片付け
-             Set fso = Nothing
+             Set Fso = Nothing
              
          
              iRow = iRow + 1
@@ -130,6 +148,7 @@ Dim iRow As Long
     End With
     
     MsgBox "完了しました"
+    
     
 End Sub
 
