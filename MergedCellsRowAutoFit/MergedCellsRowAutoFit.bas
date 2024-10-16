@@ -9,7 +9,8 @@ Dim obj As Shape
 Dim TargetRange As Range
 Dim iRange As Range
 Dim iHeight As Long
-    
+ 
+ 
     With ActiveSheet
         
         Set obj = .Shapes.AddLabel(msoTextOrientationHorizontal, 100, 100, 100, 100)
