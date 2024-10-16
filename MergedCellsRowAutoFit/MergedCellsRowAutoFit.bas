@@ -4,18 +4,15 @@ Option Explicit
 Public Sub MergedCellsRowAutoFit()
 
 Dim i As Long
-
 Dim obj As Shape
 Dim TargetRange As Range
 Dim iRange As Range
 Dim iHeight As Long
  
- 
     With ActiveSheet
         
         Set obj = .Shapes.AddLabel(msoTextOrientationHorizontal, 100, 100, 100, 100)
         Set TargetRange = .Range(.Range("A1"), .Range("A1").SpecialCells(xlCellTypeLastCell))
-        
                 
         TargetRange.EntireRow.AutoFit
         
@@ -23,20 +20,15 @@ Dim iHeight As Long
         
             Set iRange = TargetRange.Item(i)
             
-            
             obj.TextFrame2.AutoSize = msoAutoSizeShapeToFitText
-            
             obj.TextFrame2.TextRange.Font.Name = iRange.Font.Name
             obj.TextFrame2.TextRange.Font.NameFarEast = iRange.Font.Name
-            
             obj.TextFrame2.TextRange.Font.Size = iRange.Font.Size
                  
             If iRange.Value <> "" Then
             
                 obj.Width = iRange.MergeArea.Width + 6
-                
                 obj.TextFrame2.TextRange.Text = iRange.Value
-                
                 iHeight = obj.Height
                 
                 If iRange.MergeArea.Height < iHeight Then
