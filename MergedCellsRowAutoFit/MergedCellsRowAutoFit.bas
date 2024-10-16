@@ -40,9 +40,15 @@ Dim iHeight As Long
                 
                 If iRange.MergeArea.Height < iHeight Then
                     
-                    
+                    If iRange.RowHeight + iHeight - iRange.MergeArea.Height <= 409.5 Then
             
-                    iRange.RowHeight = iRange.RowHeight + iHeight - iRange.MergeArea.Height
+                        iRange.RowHeight = iRange.RowHeight + iHeight - iRange.MergeArea.Height
+                    
+                    Else
+                            
+                        iRange.RowHeight = 409.5
+                            
+                    End If
                     
                 End If
             
