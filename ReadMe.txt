@@ -6,3 +6,5 @@ ExcelVBA用マクロ集 各フォルダの説明
 《MergedCellsRowAutoFit》フォルダ
 結合されたセルの行幅を自動調整するマクロ
 
+《FileDownload》フォルダ
+指定したURLのファイルを一括ダウンロードするマクロ
