@@ -27,22 +27,11 @@ Dim i As Long
 
 Dim iCount As Long '件数
 
-Dim iBar As ProgressBar
-
-
 
     '画面更新、自動計算を停止
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
         
-    Set iBar = New ProgressBar
-    
-    Set iBar.TargetForm = UF_ProgressBar
-    
-    iBar.ShowForm
-    
-    iBar.ProgressBarPaint 0, 0, 2, "ファイルをダウンロード中です。"
-    
         
     With ThisWorkbook.Sheets("FileDownload")
     
@@ -68,16 +57,14 @@ Dim iBar As ProgressBar
             
             If iFlag = 0 Then
                 
-                .Cells(i, "C").Value = "成功"
+                .Cells(i, "C").Value = Format(Date, "yyyy/mm/dd ") & Format(Time, "hh:mm:ss ") & "成功"
             
             Else
             
-                 .Cells(i, "C").Value = "失敗"
+                .Cells(i, "C").Value = Format(Date, "yyyy/mm/dd ") & Format(Time, "hh:mm:ss ") & "失敗"
             
             End If
-            
-            iBar.ProgressBarPaint (i - 1) / (iCount + 1) * 100, i / (iCount + 1) * 100, 2, (i - 1) & "/" & iCount & "件目を処理中です。"
-            
+                        
         
             i = i + 1
             
@@ -85,11 +72,7 @@ Dim iBar As ProgressBar
         
         
     End With
-    
-    iBar.FinalWait
-    
-    iBar.UnloadForm
-    
+        
     
     '画面更新、自動更新を戻す
     Application.ScreenUpdating = True
