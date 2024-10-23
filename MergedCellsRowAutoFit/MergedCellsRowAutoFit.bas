@@ -3,12 +3,10 @@ Option Explicit
 
 Public Sub MergedCellsRowAutoFit()
 
-Dim i As Long
 Dim obj As Shape
 Dim TargetRange As Range
 Dim iRange As Range
-Dim iHeight As Double
-
+Dim AdjustHeight As Double
 
     Application.ScreenUpdating = False
 
@@ -25,18 +23,24 @@ Dim iHeight As Double
         
         TargetRange.EntireRow.AutoFit
         
-        For i = 1 To TargetRange.Count
-            
-            Set iRange = TargetRange.Item(i)
+        For Each iRange In TargetRange
             
             If iRange.MergeArea.Count = 1 Then
                 
-                If iRange.Value <> "" Then obj.TextFrame2.TextRange.Text = iRange.Value
+                If iRange.Value <> "" Then
                     
+                    obj.TextFrame2.TextRange.Text = iRange.Value
+                
+                End If
+                
             Else
                 
-                If iRange.MergeArea.Value2(1, 1) <> "" Then obj.TextFrame2.TextRange.Text = iRange.MergeArea.Value2(1, 1)
-                        
+                If iRange.MergeArea.Value2(1, 1) <> "" Then
+                    
+                    obj.TextFrame2.TextRange.Text = iRange.MergeArea.Value2(1, 1)
+                
+                End If
+                
             End If
                        
             If obj.TextFrame2.TextRange.Text <> "" Then
@@ -48,13 +52,13 @@ Dim iHeight As Double
                 obj.TextFrame2.TextRange.Font.Size = iRange.Font.Size
                 obj.TextFrame2.AutoSize = msoAutoSizeShapeToFitText
                 
-                iHeight = obj.Height
-                
-                If iRange.MergeArea.Height < iHeight Then
+                If iRange.MergeArea.Height < obj.Height Then
                     
-                    If iRange.RowHeight + iHeight - iRange.MergeArea.Height <= 409.5 Then
+                    AdjustHeight = iRange.RowHeight + obj.Height - iRange.MergeArea.Height
+                    
+                    If AdjustHeight <= 409.5 Then
             
-                        iRange.RowHeight = iRange.RowHeight + iHeight - iRange.MergeArea.Height
+                        iRange.RowHeight = AdjustHeight
                     
                     Else
                             
@@ -68,9 +72,7 @@ Dim iHeight As Double
             
             obj.TextFrame2.TextRange.Text = ""
             
-            Set iRange = Nothing
-            
-        Next i
+        Next iRange
 
         obj.Delete
         
