@@ -41,7 +41,7 @@ Dim iHeight As Double
                        
             If obj.TextFrame2.TextRange.Text <> "" Then
                   
-                obj.Width = iRange.MergeArea.Width + 6
+                obj.Width = iRange.MergeArea.Width
                 
                 obj.TextFrame2.TextRange.Font.Name = iRange.Font.Name
                 obj.TextFrame2.TextRange.Font.NameFarEast = iRange.Font.Name
