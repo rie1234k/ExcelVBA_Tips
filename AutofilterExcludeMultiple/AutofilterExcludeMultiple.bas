@@ -57,16 +57,26 @@ End Sub
 Public Sub DataExtract()
 
 Dim TargetColumnNo As Long
-Dim TargetItemString As String
-Dim TargetItemArray As Variant
+Dim ItemCount As Long
+Dim TargetItemArray() As String
+Dim i As Long
 
-     '項目列番号・対象項目を取得
+       '項目列番号・除外対象項目を取得
     With ThisWorkbook.Sheets("除外条件")
     
         TargetColumnNo = WorksheetFunction.Match(.Range("A2").Value, ActiveSheet.Rows(1), 0)
-        TargetItemString = WorksheetFunction.TextJoin(",", True, .Range(.Range("C2"), .Range("C2").End(xlDown)))
-        TargetItemArray = Split(TargetItemString, ",")
-    
+        
+        ItemCount = .Range(.Range("C2"), .Range("C2").End(xlDown)).Count
+        
+        ReDim TargetItemArray(ItemCount - 1)
+        
+        For i = 0 To ItemCount - 1
+        
+            TargetItemArray(i) = .Cells(i + 2, "C").Value
+            
+        Next i
+        
+        
     End With
     
     
