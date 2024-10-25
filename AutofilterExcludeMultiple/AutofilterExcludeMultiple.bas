@@ -4,22 +4,32 @@ Option Explicit
 Public Sub AutofilterExcludeMultiple()
 
 Dim TargetColumnNo As Long
-Dim TargetItemString As String
-Dim TargetItemArray As Variant
+Dim ItemCount As Long
+Dim TargetItemArray() As String
+Dim i As Long
 
     '項目列番号・除外対象項目を取得
     With ThisWorkbook.Sheets("除外条件")
     
         TargetColumnNo = WorksheetFunction.Match(.Range("A2").Value, ActiveSheet.Rows(1), 0)
-        TargetItemString = WorksheetFunction.TextJoin(",", True, .Range(.Range("C2"), .Range("C2").End(xlDown)))
-        TargetItemArray = Split(TargetItemString, ",")
-    
+        
+        ItemCount = .Range(.Range("C2"), .Range("C2").End(xlDown)).Count
+        
+        ReDim TargetItemArray(ItemCount - 1)
+        
+        For i = 0 To ItemCount - 1
+        
+            TargetItemArray(i) = .Cells(i + 2, "C").Value
+            
+        Next i
+        
+        
     End With
 
 
      With ActiveSheet
         
-        'オートフィルター解除
+        'オートフィルターが設定されている場合には解除
         If Not .AutoFilter Is Nothing Then .Range("A1").AutoFilter
         
         '塗りつぶし解除
@@ -32,7 +42,8 @@ Dim TargetItemArray As Variant
         '除外対象のA列のセルを塗りつぶし
         .Range(.Range("A2"), .Range("A2").End(xlDown)).Interior.Color = vbYellow
         
-        .Range("A1").AutoFilter
+        .ShowAllData
+    
         '塗りつぶされていないセルを抽出 ＝ 除外対象以外のデータ
          .Range("A1").AutoFilter Field:=1, Operator:=xlFilterNoFill
             
