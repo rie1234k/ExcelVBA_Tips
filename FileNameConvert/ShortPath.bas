@@ -4,77 +4,43 @@ Option Explicit
 Public Function ChangeShortPath(FullPath As String) As String
 
 Dim Fso As Object
-Dim TargetFolder As String
-Dim endPath As String
-Dim FolderPath As String
+Dim TargetPath As String
+Dim LastPath As String
 
-    endPath = ""
-    TargetFolder = ""
-    FolderPath = ""
+Dim i As Long
 
-    Set Fso = CreateObject("Scripting.FileSystemObject")
+   Set Fso = CreateObject("Scripting.FileSystemObject")
         
-        
-    TargetFolder = FullPath
+    TargetPath = FullPath
     
     '存在するフォルダまで遡って、存在するフォルダをショートパスに変換する
-    Do Until Fso.FolderExists(TargetFolder)
+    Do Until Fso.FolderExists(TargetPath)
+    
+        'GetFileNameは、ファイルに限らず、最終要素と取り出す
+        LastPath = "\" & Fso.GetFileName(TargetPath) & LastPath
         
-        If endPath <> "" Then
+        TargetPath = Fso.GetParentFolderName(TargetPath)
         
-            endPath = Fso.GetFileName(TargetFolder) & "\" & endPath
-        
-        Else
-        
-            endPath = Fso.GetFileName(TargetFolder)
-        
+        If TargetPath = "" Then
+            
+            MsgBox "指定されたフォルダは存在しません。"
+            End
+            
         End If
         
-        TargetFolder = Fso.GetParentFolderName(TargetFolder)
-        
-    
     Loop
     
+    TargetPath = Fso.GetFolder(TargetPath).ShortPath & LastPath
     
-    If endPath <> "" Then
+    ChangeShortPath = TargetPath
         
-        TargetFolder = Fso.GetFolder(TargetFolder).ShortPath & "\" & endPath
-         
+    If Fso.FileExists(ChangeShortPath) = False And Fso.FolderExists(ChangeShortPath) = False Then
+        
+        MsgBox "指定されたパスは存在しません。"
+        End
+        
     End If
     
+    Set Fso = Nothing
     
-    '変換したショートパスと末尾のパスを繋げたパスについて、長い場合は再度ショートパスに変換する
-    endPath = ""
-    
-    Do Until Fso.FolderExists(TargetFolder)
-        
-        If endPath <> "" Then
-        
-            endPath = Fso.GetFileName(TargetFolder) & "\" & endPath
-        
-        Else
-        
-            endPath = Fso.GetFileName(TargetFolder)
-        
-        End If
-        
-        TargetFolder = Fso.GetParentFolderName(TargetFolder)
-        
-    
-    Loop
-    
-    
-    If endPath <> "" Then
-        
-        ChangeShortPath = Fso.GetFolder(TargetFolder).ShortPath & "\" & endPath
-    
-    Else
-    
-         ChangeShortPath = TargetFolder
-         
-    End If
-    
-
 End Function
-
-
