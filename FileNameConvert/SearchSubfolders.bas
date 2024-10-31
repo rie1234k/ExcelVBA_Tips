@@ -5,22 +5,29 @@ Option Explicit
 Public Sub SearchSubFolders_File()
 
 Dim FolderPath As String
-   
+Dim StartRow As Long
+Dim FolderStartColumn As Long
+
+
     With ThisWorkbook.Sheets("ファイル名取得2")
     
         .Range("A1").CurrentRegion.Offset(2).ClearContents
         
         FolderPath = .Range("B1").Value
+        
+        StartRow = .Range("A3").Row
+        FolderStartColumn = .Range("C3").Column
+        
     
     End With
-    
-    Call FileSearch(FolderPath, 3, 3)
+
+    Call FileSearch(FolderPath, StartRow, FolderStartColumn, FolderStartColumn)
     
    
     
 End Sub
 
-Sub FileSearch(FolderPath As String, outRow As Long, outColumn As Long)
+Sub FileSearch(FolderPath As String, outRow As Long, outColumn As Long, baseColumn As Long)
 
 Dim Fso As Object
 Dim f As Object
@@ -40,7 +47,7 @@ Dim CurrentFolderPath As String
     
     For Each f In iFolder.SubFolders
     
-        Call FileSearch(OriginalPath & "\" & f.Name, outRow, outColumn + 1)   '再帰呼出
+        Call FileSearch(OriginalPath & "\" & f.Name, outRow, outColumn + 1, baseColumn)  '再帰呼出
     
     Next
         
@@ -50,7 +57,7 @@ Dim CurrentFolderPath As String
 
             CurrentFolderPath = OriginalPath
             
-            For i = outColumn To 3 Step -1
+            For i = outColumn To baseColumn Step -1
             
                 .Cells(outRow, i).Value = Fso.GetBaseName(CurrentFolderPath)
                 
@@ -73,22 +80,26 @@ End Sub
 Public Sub SearchSubFolders_Folder()
 
 Dim FolderPath As String
+Dim StartRow As Long
+Dim FolderStartColumn As Long
    
     With ThisWorkbook.Sheets("フォルダ名取得2")
     
         .Range("A1").CurrentRegion.Offset(2).ClearContents
         
         FolderPath = .Range("B1").Value
-    
+        StartRow = .Range("A3").Row
+        FolderStartColumn = .Range("B3").Column
+   
     End With
     
-    Call FolderSearch(FolderPath, 3, 2)
+    Call FolderSearch(FolderPath, StartRow, FolderStartColumn, FolderStartColumn)
     
    
     
 End Sub
 
-Sub FolderSearch(FolderPath As String, outRow As Long, outColumn As Long)
+Sub FolderSearch(FolderPath As String, outRow As Long, outColumn As Long, baseColumn As Long)
 
 Dim Fso As Object
 Dim f As Object
@@ -108,7 +119,7 @@ Dim CurrentFolderPath As String
 
     For Each f In iFolder.SubFolders
           
-        Call FolderSearch(OriginalPath & "\" & f.Name, outRow, outColumn + 1)   '再帰呼出
+        Call FolderSearch(OriginalPath & "\" & f.Name, outRow, outColumn + 1, baseColumn)  '再帰呼出
     
     Next
         
@@ -118,7 +129,7 @@ Dim CurrentFolderPath As String
 
             CurrentFolderPath = OriginalPath & "\" & f.Name
 
-            For i = outColumn To 2 Step -1
+            For i = outColumn To baseColumn Step -1
             
                 .Cells(outRow, i).Value = Fso.GetBaseName(CurrentFolderPath)
                 

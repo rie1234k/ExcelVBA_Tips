@@ -1,19 +1,14 @@
 Attribute VB_Name = "FileNameConvert"
 Option Explicit
 
-'方法① FileSystemObject 長いパスに対応
-Public Sub fso_GetFileName()
+Public Sub GetFileName()
 
 Dim FolderName As String
 Dim Fso As Object
 Dim iFolder As Object
 Dim iFile As Object
 Dim iRow As Long
-
-Dim i As Long
-Dim f As Object
-
-     
+ 
     With ThisWorkbook.Sheets("ファイル名取得")
  
         '取得場所
@@ -21,29 +16,17 @@ Dim f As Object
               
         'データ消去
         .Range("A1").CurrentRegion.Offset(1).ClearContents
-
-        
+  
         Set Fso = CreateObject("Scripting.FileSystemObject")
         
         'フォルダの取得
         Set iFolder = Fso.GetFolder(ChangeShortPath(FolderName))
-            
-        
-        For Each f In iFolder.Files: i = i + 1: Next f
-        
-        If iFolder.Files.Count <> i Then
-        
-            Set iFolder = Fso.GetFolder(iFolder.ShortPath)
-        
-        End If
-        
        
         '行数
         iRow = 2
         
         'フォルダ内のファイルを処理
         For Each iFile In iFolder.Files
-        
         
             .Cells(iRow, 1).Value = FolderName & "\" & iFile.Name
             .Cells(iRow, 2).Value = FolderName
@@ -52,7 +35,6 @@ Dim f As Object
             iRow = iRow + 1
             
         Next iFile
-        
     
     End With
     
@@ -60,14 +42,11 @@ Dim f As Object
         
 End Sub
 
+Public Sub ChangeFileName()
 
-Public Sub ChangeFileName()  '長いパス対応
 Dim Fso As Object
-
 Dim FileFullPath As String
-Dim newfileName As String
-Dim FolderName As String
-Dim FolderShortName As String
+Dim newFileName As String
 Dim iRow As Long
 
     iRow = 2
@@ -82,12 +61,13 @@ Dim iRow As Long
              FileFullPath = .Cells(iRow, "A").Value
              
              '変更後のファイル名
-             newfileName = .Cells(iRow, "B").Value
-
+             newFileName = .Cells(iRow, "B").Value
+             
+             'ショートパスに変換
              FileFullPath = ChangeShortPath(FileFullPath)
 
              'ファイル名を変更
-             Fso.GetFile(FileFullPath).Name = newfileName
+             Fso.GetFile(FileFullPath).Name = newFileName
             
              iRow = iRow + 1
              

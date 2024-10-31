@@ -16,9 +16,10 @@ Dim i As Long
     '存在するフォルダまで遡って、存在するフォルダをショートパスに変換する
     Do Until Fso.FolderExists(TargetPath)
     
-        'GetFileNameは、ファイルに限らず、最終要素と取り出す
+        'GetFileNameは、ファイルに限らず、最終要素を取り出す
         LastPath = "\" & Fso.GetFileName(TargetPath) & LastPath
         
+        'GetParentFolderNameは最終要素のひとつ前の要素を取り出す
         TargetPath = Fso.GetParentFolderName(TargetPath)
         
         If TargetPath = "" Then
@@ -32,9 +33,8 @@ Dim i As Long
     
     TargetPath = Fso.GetFolder(TargetPath).ShortPath & LastPath
     
-    ChangeShortPath = TargetPath
-        
-    If Fso.FileExists(ChangeShortPath) = False And Fso.FolderExists(ChangeShortPath) = False Then
+    If Fso.FileExists(TargetPath) = False _
+        And Fso.FolderExists(TargetPath) = False Then
         
         MsgBox "指定されたパスは存在しません。"
         End
@@ -42,5 +42,7 @@ Dim i As Long
     End If
     
     Set Fso = Nothing
+    
+    ChangeShortPath = TargetPath
     
 End Function
