@@ -8,3 +8,6 @@ ExcelVBA用マクロ集 各フォルダの説明
 
 《FileDownload》フォルダ
 指定したURLのファイルを一括ダウンロードするマクロ
+
+《AutofilterExcludeMultiple》フォルダ
+オートフィルターで特定の列の複数項目を除外するマクロ
