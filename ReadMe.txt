@@ -11,3 +11,6 @@ ExcelVBA用マクロ集 各フォルダの説明
 
 《AutofilterExcludeMultiple》フォルダ
 オートフィルターで特定の列の複数項目を除外するマクロ
+
+《SlicerControl》フォルダ
+データソースの異なるピボットテーブルのスライサーと連動させるマクロ
