@@ -138,15 +138,19 @@ Dim i As Long
                         
                         If Not VisibleChangedItemsDic.Exists(TargetItemsDic.Items()(i)) Then
                             
-                            '最後の1つをオフにする場合には、該当なしをオンにする
-                            If TargetSlicerCache.VisibleSlicerItems.Count = 1 Then
+                            With TargetSlicerCache
                                 
-                                 TargetSlicerCache.SlicerItems("(該当なし)").Selected = True
-                                 
-                            End If
+                                '最後の1つをオフにする場合には、該当なしをオンにする
+                                If .VisibleSlicerItems.Count = 1 Then
+                                    
+                                     .SlicerItems("(該当なし)").Selected = True
+                                     
+                                End If
                             
-                            TargetSlicerCache.SlicerItems(TargetItemsDic.Items()(i)).Selected = False
-
+                                .SlicerItems(TargetItemsDic.Items()(i)).Selected = False
+                            
+                            End With
+                            
                         End If
                     
                     Next i
