@@ -2,7 +2,7 @@ Attribute VB_Name = "C_CreateList"
 Option Explicit
 
 '郵便番号データファイルの列番号
-Enum CSVColumnNo
+Private Enum CSVColumnNo
 
     CityCode = 1
     PrefName = 7
@@ -15,9 +15,13 @@ Private CityList() As String
 Private TownList() As String
 Private DupTownDic As Object
 Private DupCityDic As Object
+Private ListNo As Collection
+
 
 Public Function GetListCollection(PostcodeFileName As String) As Collection
 
+    Call SetListNo
+    
     Call CreateCityList(PostcodeFileName)
     Call CreateTownList(PostcodeFileName)
     
@@ -25,11 +29,54 @@ Public Function GetListCollection(PostcodeFileName As String) As Collection
     
     GetListCollection.Add CityList, "CityList"
     GetListCollection.Add TownList, "TownList"
+    GetListCollection.Add ListNo, "ListNo"
     GetListCollection.Add DupTownDic, "DupTownDic"
     GetListCollection.Add DupCityDic, "DupCityDic"
     
 End Function
-Public Sub CreateCityList(PostcodeFileName As String)
+Private Sub SetListNo()
+
+Dim CityList As Collection
+Dim TownList As Collection
+Dim i As Long
+Dim ItemNameArray As Variant
+    
+    
+    Set ListNo = New Collection
+
+    'CityListNo設定
+    Set CityList = New Collection
+    ItemNameArray = Array("CityCode", "PrefName", "AreaName", "CityName", "PrefAreaCityName", "AreaCityName", "PrefCityName")
+    
+    For i = 0 To UBound(ItemNameArray)
+         
+        CityList.Add i, ItemNameArray(i)
+
+    Next i
+
+    ListNo.Add CityList, "CityList"
+    
+    Set CityList = Nothing
+    
+    
+    'TownListNo設定
+    Set TownList = New Collection
+    ItemNameArray = Array("CityCode", "PrefName", "AreaName", "CityName", "TownName")
+    
+    For i = 0 To UBound(ItemNameArray)
+
+        TownList.Add i, ItemNameArray(i)
+
+    Next i
+    
+     ListNo.Add TownList, "TownList"
+    
+    Set TownList = Nothing
+    
+
+End Sub
+
+Private Sub CreateCityList(PostcodeFileName As String)
 
 Dim FSO As Object
 Dim TextFile As Object
@@ -42,7 +89,7 @@ Dim PrefName As String
 Dim BaseCityName As String
 Dim CityName As String
 Dim AreaName As String
-Dim BeforeFullCityName As String
+Dim BeforePrefAreaCityName As String
 Dim CityCount As Long
 Dim CityDic As Object
  
@@ -62,6 +109,7 @@ Dim CityDic As Object
         PrefName = Replace(SplitData(CSVColumnNo.PrefName - 1), """", "")
         BaseCityName = Replace(SplitData(CSVColumnNo.CityName - 1), """", "")
         
+         
         '------- CSVデータ加工 -------
         Select Case Val(Left(Right(CityCode, 3), 1))
         
@@ -107,13 +155,15 @@ Dim CityDic As Object
         CityListSet.Add PrefName, "PrefName"
         CityListSet.Add AreaName, "AreaName"
         CityListSet.Add CityName, "CityName"
-        CityListSet.Add PrefName & AreaName & CityName, "FullCityName"
-        CityListSet.Add AreaName & CityName, "FullAreaName"
-        
+        CityListSet.Add PrefName & AreaName & CityName, "PrefAreaCityName"
+        CityListSet.Add AreaName & CityName, "AreaCityName"
+        CityListSet.Add PrefName & CityName, "PrefCityName"
+            
         '------- 市区町村リスト作成 -------
-        If CityListSet("FullCityName") <> BeforeFullCityName Then
+        If CityListSet("PrefAreaCityName") <> BeforePrefAreaCityName Then
+            
         
-            ReDim Preserve CityList(5, CityCount)
+            ReDim Preserve CityList(CityListSet.Count - 1, CityCount)
             
             For i = 0 To UBound(CityList, 1)
             
@@ -129,17 +179,17 @@ Dim CityDic As Object
             
             Else
             
-                If Not DupCityDic.Exists(CityDic(CityName)("FullCityName")) Then
+                If Not DupCityDic.Exists(CityDic(CityName)("PrefAreaCityName")) Then
                 
-                DupCityDic.Add CityDic(CityName)("FullCityName"), CityDic(CityName)
+                DupCityDic.Add CityDic(CityName)("PrefAreaCityName"), CityDic(CityName)
                 
                 End If
                 
-                DupCityDic.Add CityListSet("FullCityName"), CityListSet
+                DupCityDic.Add CityListSet("PrefAreaCityName"), CityListSet
             
             End If
             
-            BeforeFullCityName = CityListSet("FullCityName")
+            BeforePrefAreaCityName = CityListSet("PrefAreaCityName")
             CityCount = CityCount + 1
             Set CityListSet = Nothing
         
@@ -154,7 +204,7 @@ Dim CityDic As Object
     
 End Sub
 
-Public Sub CreateTownList(PostcodeFileName As String)
+Private Sub CreateTownList(PostcodeFileName As String)
 
 Dim FSO As Object
 Dim TextFile As Object
@@ -163,9 +213,11 @@ Dim i As Long
 
 Dim TownDic As Object
 Dim PrefName As String
-Dim FullAreaName As String
+Dim BaseCityName As String
 Dim CityName As String
 Dim TownName As String
+Dim TownListSet As Collection
+
 
 Dim TownCount As Long
 Dim DupTownCount As Long
@@ -186,31 +238,38 @@ Dim DupTownCount As Long
         SplitData = Split(TextFile.ReadLine, ",")
 
         PrefName = Replace(SplitData(CSVColumnNo.PrefName - 1), """", "")
-        FullAreaName = Replace(SplitData(CSVColumnNo.CityName - 1), """", "")
-        TownName = Replace(SplitData(CSVColumnNo.TownName - 1), """", "")
+        BaseCityName = Replace(SplitData(CSVColumnNo.CityName - 1), """", "")
         
-        If DupCityDic.Exists(PrefName & FullAreaName) Then
-        
-           CityName = DupCityDic(PrefName & FullAreaName)("CityName")
-             
+        If DupCityDic.Exists(PrefName & BaseCityName) Then
+            
+           CityName = DupCityDic(PrefName & BaseCityName)("CityName")
+           TownName = Replace(SplitData(CSVColumnNo.TownName - 1), """", "")
+          
              If TownName <> "以下に掲載がない場合" Then
              
                 If Not TownDic.Exists(CityName & TownName) Then
-                
+                    
+                    Set TownListSet = New Collection
+                    
+                    TownListSet.Add DupCityDic(PrefName & BaseCityName)("CityCode"), "CityCode"
+                    TownListSet.Add PrefName, "PrefName"
+                    TownListSet.Add DupCityDic(PrefName & BaseCityName)("AreaName"), "AreaName"
+                    TownListSet.Add DupCityDic(PrefName & BaseCityName)("CityName"), "CityName"
+                    TownListSet.Add TownName, "TownName"
+
                     ReDim Preserve TownList(4, TownCount)
                     
-                    For i = 0 To 3
+                    For i = 0 To 4
                     
-                        TownList(i, TownCount) = DupCityDic(PrefName & FullAreaName)(i + 1)
+                        TownList(i, TownCount) = TownListSet(i + 1)
                         
                     Next i
 
-                    TownList(4, TownCount) = TownName
-                    
                     TownDic.Add CityName & TownName, CityName & TownName
                     
                     TownCount = TownCount + 1
-                
+                    Set TownListSet = Nothing
+                    
                 Else
                 
                     DupTownDic.Add CityName & "*" & TownName, CityName & "*" & TownName

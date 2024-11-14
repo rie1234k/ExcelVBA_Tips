@@ -13,6 +13,8 @@ Dim k As Long
 Dim ListCollection As Collection
 Dim CityList() As String
 Dim TownList() As String
+Dim CityListNo As Collection
+Dim TownListNo As Collection
 Dim DupCityDic As Object
 Dim DupTownDic As Object
 
@@ -23,8 +25,9 @@ Dim OutputRange As Range
 Dim AddressList() As String
 Dim SearchList()  As String
 Dim SearchListCount As Long
-Dim SearchListWord(2) As String
-Dim SearchListFlag(2) As Boolean
+Dim SearchListNo As Collection
+Dim SearchWord() As String
+Dim SearchFlag() As Boolean
 Dim SearchTownName As String
 
 
@@ -48,6 +51,8 @@ Dim SearchTownName As String
     
     CityList = ListCollection("CityList")
     TownList = ListCollection("TownList")
+    Set CityListNo = ListCollection("ListNo")("CityList")
+    Set TownListNo = ListCollection("ListNo")("TownList")
     Set DupTownDic = ListCollection("DupTownDic")
     Set DupCityDic = ListCollection("DupCityDic")
     
@@ -70,31 +75,45 @@ Dim SearchTownName As String
     
 
     '------- åüçıópÉèÅ[ÉhÉäÉXÉgçÏê¨ -------
-    For i = 0 To UBound(CityList, 2)
     
-        SearchListWord(0) = CityList(3, i)
-        SearchListWord(1) = CityList(4, i)
-        SearchListWord(2) = CityList(5, i)
+    Set SearchListNo = CityListNo
+    SearchListNo.Add 7, "SearchWord"
+   
+    For i = 0 To UBound(CityList, 2)
         
-        'ésí¨ë∫ñºÇ∆åS+ésí¨ë∫ñºÇ™ìØÇ∂èÍçáÅAésí¨ë∫ñºÇÃÇ›ÇÃåüçıÇ≈ÇÊÇ¢ÇÃÇ≈ÅAãÛóìÇ∆Ç∑ÇÈ
-        If CityList(3, i) = CityList(5, i) Then SearchListWord(2) = ""
+        ReDim SearchWord(1)
+           
+        SearchWord(0) = CityList(CityListNo("PrefCityName"), i)
+        SearchWord(1) = CityList(CityListNo("CityName"), i)
+     
+     
+        If CityList(CityListNo("AreaName"), i) <> "" Then
+            
+            ReDim Preserve SearchWord(3)
+            
+            SearchWord(2) = CityList(CityListNo("PrefAreaCityName"), i)
+            SearchWord(3) = CityList(CityListNo("AreaCityName"), i)
         
-        For j = 0 To 2
+        End If
+           
+               
+        ReDim SearchFlag(UBound(SearchWord))
         
-            SearchListFlag(j) = False
-        
+        For j = 0 To UBound(SearchFlag)
+            
+            SearchFlag(j) = False
+
         Next j
         
         
-        For j = 0 To 2
-        
+        For j = 0 To UBound(SearchWord)
+               
             k = 2
-            
+        
             Do
-                If AddressList(k) Like SearchListWord(j) & "*" _
-                    And SearchListWord(j) <> "" Then
+                If AddressList(k) Like SearchWord(j) & "*" Then
 
-                    SearchListFlag(j) = True
+                    SearchFlag(j) = True
                     
                 End If
                 
@@ -102,30 +121,31 @@ Dim SearchTownName As String
                 
                 k = k + 1
             
-            Loop Until SearchListFlag(j)
-        
+            Loop Until SearchFlag(j)
+       
         Next j
         
         
-        For j = 0 To 2
         
-            If SearchListFlag(j) Then
+        For j = 0 To UBound(SearchWord)
+        
+            If SearchFlag(j) Then
             
-                ReDim Preserve SearchList(6, SearchListCount)
+                ReDim Preserve SearchList(UBound(CityList, 1) + 1, SearchListCount)
                 
-                For k = 0 To UBound(SearchList, 1) - 1
+                For k = 0 To UBound(CityList, 1)
                 
                     SearchList(k, SearchListCount) = CityList(k, i)
                 
                 Next k
                 
-                SearchList(UBound(SearchList, 1), SearchListCount) = SearchListWord(j)
+                SearchList(SearchListNo("SearchWord"), SearchListCount) = SearchWord(j)
                 SearchListCount = SearchListCount + 1
             
             End If
         
         Next j
-    
+
     Next i
     
     '------- ìsìπï{åßÅEésãÊí¨ë∫ñºéÊìæèàóù -------
@@ -140,75 +160,74 @@ Dim SearchTownName As String
     
     TargetSheet.Range("A1").CurrentRegion.Offset(1, 1).ClearContents
     
-    
     For i = 0 To UBound(SearchList, 2)
         
         With TargetSheet
             
             Select Case True
-                
+        
                 'åüçıÉèÅ[ÉhÇ∆ésí¨ë∫ñºÇ™ìØÇ∂éûÇ…èdï°ésãÊí¨ë∫ñºÇÃèÍçáÇÕí¨àÊÇ≈åüçı
-                Case SearchList(6, i) = SearchList(3, i) And DupCityDic.Exists(SearchList(4, i))
-                    
+                Case SearchList(SearchListNo("SearchWord"), i) = SearchList(SearchListNo("CityName"), i) _
+                        And DupCityDic.Exists(SearchList(SearchListNo("PrefAreaCityName"), i))
+                
                     For j = 0 To UBound(TownList, 2)
+                    
+                    If TownList(TownListNo("CityName"), j) = SearchList(SearchListNo("CityName"), i) Then
+                    
+                        SearchTownName = TownList(TownListNo("CityName"), j) & "*" & TownList(TownListNo("TownName"), j)
                         
-                        If TownList(3, j) = SearchList(3, i) Then
-                        
-                            SearchTownName = TownList(3, j) & "*" & TownList(4, j)
-                            
-                            Select Case True
+                        Select Case True
                                 
-                                'ìØñºÇÃí¨àÊÇ™Ç†ÇÈèÍçá
-                                Case DupTownDic.Exists(SearchTownName)
+                            'ìØñºÇÃí¨àÊÇ™Ç†ÇÈèÍçá
+                            Case DupTownDic.Exists(SearchTownName)
                             
-                                   If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
-    
+                                If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
+                                
                                     .Range("A1").AutoFilter Field:=1, Criteria1:=SearchTownName & "*"
                                     Set OutputRange = .Range(.Range("B2"), .Cells(endRow, "B"))
                                     OutputRange.SpecialCells(xlCellTypeVisible).Value = "ÅöìØñºÇÃí¨àÊÇ™Ç†ÇÈÇΩÇﬂóvämîFÅö"
                                     .Range("A1").AutoFilter
                                     
-                                    End If
-                                
-                                Case Else
-                                    
-                                    If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
+                                End If
+                            
+                            Case Else
+                            
+                                If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
                                 
                                     .Range("A1").AutoFilter Field:=1, Criteria1:=SearchTownName & "*"
                                     
                                     For k = 0 To 3
-                                        
+                                    
                                         Set OutputRange = .Range(.Cells(2, k + 2), .Cells(endRow, k + 2))
                                         OutputRange.SpecialCells(xlCellTypeVisible).Value = TownList(k, j)
-                                
+                                    
                                     Next k
-                                
+                                    
                                     .Range("A1").AutoFilter
-                                
+                                    
                                 End If
-                            
+                                
                             End Select
-                            
+                        
                         End If
-                        
+                    
                     Next j
-                    
-                Case Else
-                    
-                    .Range("A1").AutoFilter Field:=1, Criteria1:=SearchList(6, i) & "*"
                 
+                Case Else
+                
+                    .Range("A1").AutoFilter Field:=1, Criteria1:=SearchList(UBound(SearchList, 1), i) & "*"
+                    
                     For j = 0 To 3
-                        
+                    
                         Set OutputRange = .Range(.Cells(2, j + 2), .Cells(endRow, j + 2))
                         OutputRange.SpecialCells(xlCellTypeVisible).Value = SearchList(j, i)
-                    
+                        
                     Next j
                     
                     .Range("A1").AutoFilter
-
-
+                
             End Select
-            
+        
             
         End With
         
