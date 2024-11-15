@@ -13,9 +13,13 @@ End Enum
 
 Private CityList() As String
 Private TownList() As String
+Dim CityListNo As Collection
+Dim TownListNo As Collection
 Private DupTownDic As Object
 Private DupCityDic As Object
+Private TypoDic As Object
 Private ListNo As Collection
+
 
 
 Public Function GetListCollection(PostcodeFileName As String) As Collection
@@ -29,50 +33,38 @@ Public Function GetListCollection(PostcodeFileName As String) As Collection
     
     GetListCollection.Add CityList, "CityList"
     GetListCollection.Add TownList, "TownList"
-    GetListCollection.Add ListNo, "ListNo"
+    GetListCollection.Add CityListNo, "CityListNo"
+    GetListCollection.Add TownListNo, "TownListNo"
     GetListCollection.Add DupTownDic, "DupTownDic"
     GetListCollection.Add DupCityDic, "DupCityDic"
+     GetListCollection.Add TypoDic, "TypoDic"
     
 End Function
 Private Sub SetListNo()
 
-Dim CityList As Collection
-Dim TownList As Collection
 Dim i As Long
 Dim ItemNameArray As Variant
     
-    
-    Set ListNo = New Collection
-
     'CityListNo設定
-    Set CityList = New Collection
+    Set CityListNo = New Collection
     ItemNameArray = Array("CityCode", "PrefName", "AreaName", "CityName", "PrefAreaCityName", "AreaCityName", "PrefCityName")
     
     For i = 0 To UBound(ItemNameArray)
          
-        CityList.Add i, ItemNameArray(i)
+        CityListNo.Add i, ItemNameArray(i)
 
     Next i
-
-    ListNo.Add CityList, "CityList"
-    
-    Set CityList = Nothing
-    
+      
     
     'TownListNo設定
-    Set TownList = New Collection
+    Set TownListNo = New Collection
     ItemNameArray = Array("CityCode", "PrefName", "AreaName", "CityName", "TownName")
     
     For i = 0 To UBound(ItemNameArray)
 
-        TownList.Add i, ItemNameArray(i)
+        TownListNo.Add i, ItemNameArray(i)
 
     Next i
-    
-     ListNo.Add TownList, "TownList"
-    
-    Set TownList = Nothing
-    
 
 End Sub
 
@@ -89,6 +81,8 @@ Dim PrefName As String
 Dim BaseCityName As String
 Dim CityName As String
 Dim AreaName As String
+Dim TypoName As String
+Dim AddItem As Collection
 Dim BeforePrefAreaCityName As String
 Dim CityCount As Long
 Dim CityDic As Object
@@ -100,6 +94,7 @@ Dim CityDic As Object
    
     Set CityDic = CreateObject("Scripting.Dictionary")
     Set DupCityDic = CreateObject("Scripting.Dictionary")
+    Set TypoDic = CreateObject("Scripting.Dictionary")
     
     Do
         
@@ -158,11 +153,10 @@ Dim CityDic As Object
         CityListSet.Add PrefName & AreaName & CityName, "PrefAreaCityName"
         CityListSet.Add AreaName & CityName, "AreaCityName"
         CityListSet.Add PrefName & CityName, "PrefCityName"
-            
+        
         '------- 市区町村リスト作成 -------
         If CityListSet("PrefAreaCityName") <> BeforePrefAreaCityName Then
-            
-        
+
             ReDim Preserve CityList(CityListSet.Count - 1, CityCount)
             
             For i = 0 To UBound(CityList, 1)
@@ -189,10 +183,63 @@ Dim CityDic As Object
             
             End If
             
+            '------- 誤字（ケ⇔ヶ）確認用辞書作成 -------
+            For i = 2 To 4
+                
+                
+                
+                Select Case True
+                
+                    Case CityListSet(i) Like "*ケ*"
+                    
+                        TypoName = Replace(CityListSet(i), "ケ", "ヶ")
+                        
+                        
+                    Case CityListSet(i) Like "*ヶ*"
+                
+                        TypoName = Replace(CityListSet(i), "ヶ", "ケ")
+                        
+                    Case Else
+                    
+                        TypoName = ""
+
+                End Select
+                
+                If TypoName <> "" Then
+                    
+                    If TypoDic.Exists(CityListSet(i)) Then
+                        
+                        TypoDic.Remove CityListSet(i)
+                    
+                    Else
+                    
+                        If Not TypoDic.Exists(TypoName) Then
+                            
+                            Set AddItem = New Collection
+                            
+                            AddItem.Add CityListSet(i), "CorrectName"
+                            AddItem.Add TypoName, "TypoName"
+                            
+                            TypoDic.Add TypoName, AddItem
+                            
+                            Set AddItem = Nothing
+                            
+                        
+                        End If
+                        
+                    End If
+                    
+                End If
+                
+            Next i
+
             BeforePrefAreaCityName = CityListSet("PrefAreaCityName")
             CityCount = CityCount + 1
             Set CityListSet = Nothing
-        
+            
+            
+            
+            
         End If
         
     Loop Until TextFile.AtEndOfLine

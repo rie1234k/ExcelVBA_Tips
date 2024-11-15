@@ -17,6 +17,7 @@ Dim CityListNo As Collection
 Dim TownListNo As Collection
 Dim DupCityDic As Object
 Dim DupTownDic As Object
+Dim TypoDic As Object
 
 Dim TargetSheet As Worksheet
 Dim endRow As Long
@@ -51,10 +52,11 @@ Dim SearchTownName As String
     
     CityList = ListCollection("CityList")
     TownList = ListCollection("TownList")
-    Set CityListNo = ListCollection("ListNo")("CityList")
-    Set TownListNo = ListCollection("ListNo")("TownList")
+    Set CityListNo = ListCollection("CityListNo")
+    Set TownListNo = ListCollection("TownListNo")
     Set DupTownDic = ListCollection("DupTownDic")
     Set DupCityDic = ListCollection("DupCityDic")
+    Set TypoDic = ListCollection("TypoDic")
     
     Set ListCollection = Nothing
 
@@ -95,7 +97,7 @@ Dim SearchTownName As String
             SearchWord(3) = CityList(CityListNo("AreaCityName"), i)
         
         End If
-           
+        
                
         ReDim SearchFlag(UBound(SearchWord))
         
@@ -238,11 +240,34 @@ Dim SearchTownName As String
     
 
     Application.StatusBar = "リストを処理中です..."
-    
-    '------- 要確認住所にマーカー -------
-    
+        
+  
+        
+        
+   
     With TargetSheet
-
+    
+    
+      '-------  誤字（ケ⇔ヶ）確認 -------
+    
+        For i = 0 To TypoDic.Count - 1
+            
+            Debug.Print TypoDic.Items()(i)("TypoName")
+            
+            If WorksheetFunction.CountIf(.Range(.Range("A2"), .Cells(endRow, "A")), "*" & TypoDic.Items()(i)("TypoName") & "*") > 0 Then
+                    
+                .Range("A1").AutoFilter Field:=1, Criteria1:="*" & TypoDic.Items()(i)("TypoName") & "*"
+                 Set OutputRange = .Range(.Range("B2"), .Cells(endRow, "B"))
+                OutputRange.SpecialCells(xlCellTypeVisible).Value = "★" & TypoDic.Items()(i)("CorrectName") & "が正式名称です" & "★"
+                .Range("A1").AutoFilter
+                
+            End If
+            
+            
+        Next i
+    
+    
+         '------- 要確認住所にマーカー -------
         If WorksheetFunction.CountIf(.Range(.Range("B2"), .Cells(endRow, "B")), "") > 0 Then
         
             .Range("A1").AutoFilter Field:=2, Criteria1:=""
