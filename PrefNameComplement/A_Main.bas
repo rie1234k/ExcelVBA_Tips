@@ -32,8 +32,6 @@ Dim SearchFlag() As Boolean
 Dim SearchTownName As String
 
 
-    
-    
     '郵便番号データダウンロード＞住所の郵便番号（CSV形式）＞読み仮名データの促音・拗音を小書きで表記するもの＞全国一括
     TargetUrl = "https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip"
     
@@ -43,8 +41,8 @@ Dim SearchTownName As String
      Application.StatusBar = "データをダウンロード中です..."
     
     Call PostcodeZipFileDowunload(TargetUrl, PostcodeFileName)
-
-    
+ 
+ 
     Application.StatusBar = "市区町村リスト・町域リストを作成中です..."
     
     Set ListCollection = New Collection
@@ -126,9 +124,7 @@ Dim SearchTownName As String
             Loop Until SearchFlag(j)
        
         Next j
-        
-        
-        
+  
         For j = 0 To UBound(SearchWord)
         
             If SearchFlag(j) Then
@@ -168,49 +164,51 @@ Dim SearchTownName As String
             
             Select Case True
         
-                '検索ワードと市町村名が同じ時に重複市区町村名の場合は町域で検索
+                '検索ワードが市区町村名で重複市区町村名に該当する場合は町域で検索
                 Case SearchList(SearchListNo("SearchWord"), i) = SearchList(SearchListNo("CityName"), i) _
                         And DupCityDic.Exists(SearchList(SearchListNo("PrefAreaCityName"), i))
                 
                     For j = 0 To UBound(TownList, 2)
                     
-                    If TownList(TownListNo("CityName"), j) = SearchList(SearchListNo("CityName"), i) Then
-                    
-                        SearchTownName = TownList(TownListNo("CityName"), j) & "*" & TownList(TownListNo("TownName"), j)
+                        If TownList(TownListNo("CityName"), j) = SearchList(SearchListNo("CityName"), i) Then
                         
-                        Select Case True
-                                
-                            '同名の町域がある場合
-                            Case DupTownDic.Exists(SearchTownName)
+                            SearchTownName = TownList(TownListNo("CityName"), j) & "*" & TownList(TownListNo("TownName"), j)
                             
-                                If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
+                            Select Case True
+                                    
+                                '同名の町域がある場合
+                                Case DupTownDic.Exists(SearchTownName)
                                 
-                                    .Range("A1").AutoFilter Field:=1, Criteria1:=SearchTownName & "*"
-                                    Set OutputRange = .Range(.Range("B2"), .Cells(endRow, "B"))
-                                    OutputRange.SpecialCells(xlCellTypeVisible).Value = "★同名の町域があるため要確認★"
-                                    .Range("A1").AutoFilter
+                                    If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
                                     
-                                End If
-                            
-                            Case Else
-                            
-                                If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
+                                        .Range("A1").AutoFilter Field:=1, Criteria1:=SearchTownName & "*"
+                                        Set OutputRange = .Range(.Range("B2"), .Cells(endRow, "B"))
+                                        OutputRange.SpecialCells(xlCellTypeVisible).Value = "★同名の町域があるため要確認★"
+                                        Set OutputRange = Nothing
+                                        .Range("A1").AutoFilter
+                                        
+                                    End If
                                 
-                                    .Range("A1").AutoFilter Field:=1, Criteria1:=SearchTownName & "*"
-                                    
-                                    For k = 0 To 3
-                                    
-                                        Set OutputRange = .Range(.Cells(2, k + 2), .Cells(endRow, k + 2))
-                                        OutputRange.SpecialCells(xlCellTypeVisible).Value = TownList(k, j)
-                                    
-                                    Next k
-                                    
-                                    .Range("A1").AutoFilter
-                                    
-                                End If
+                                Case Else
                                 
+                                    If WorksheetFunction.CountIf(.Columns("A:A"), SearchTownName & "*") > 0 Then
+                                    
+                                        .Range("A1").AutoFilter Field:=1, Criteria1:=SearchTownName & "*"
+                                        
+                                        For k = 0 To 3
+                                        
+                                            Set OutputRange = .Range(.Cells(2, k + 2), .Cells(endRow, k + 2))
+                                            OutputRange.SpecialCells(xlCellTypeVisible).Value = TownList(k, j)
+                                            Set OutputRange = Nothing
+                                        
+                                        Next k
+                                        
+                                        .Range("A1").AutoFilter
+                                        
+                                    End If
+                                    
                             End Select
-                        
+                            
                         End If
                     
                     Next j
@@ -223,6 +221,7 @@ Dim SearchTownName As String
                     
                         Set OutputRange = .Range(.Cells(2, j + 2), .Cells(endRow, j + 2))
                         OutputRange.SpecialCells(xlCellTypeVisible).Value = SearchList(j, i)
+                        Set OutputRange = Nothing
                         
                     Next j
                     
@@ -240,10 +239,6 @@ Dim SearchTownName As String
     
 
     Application.StatusBar = "リストを処理中です..."
-        
-  
-        
-        
    
     With TargetSheet
     
@@ -252,13 +247,12 @@ Dim SearchTownName As String
     
         For i = 0 To TypoDic.Count - 1
             
-            Debug.Print TypoDic.Items()(i)("TypoName")
-            
             If WorksheetFunction.CountIf(.Range(.Range("A2"), .Cells(endRow, "A")), "*" & TypoDic.Items()(i)("TypoName") & "*") > 0 Then
                     
                 .Range("A1").AutoFilter Field:=1, Criteria1:="*" & TypoDic.Items()(i)("TypoName") & "*"
-                 Set OutputRange = .Range(.Range("B2"), .Cells(endRow, "B"))
+                Set OutputRange = .Range(.Range("B2"), .Cells(endRow, "B"))
                 OutputRange.SpecialCells(xlCellTypeVisible).Value = "★" & TypoDic.Items()(i)("CorrectName") & "が正式名称です" & "★"
+                Set OutputRange = Nothing
                 .Range("A1").AutoFilter
                 
             End If
@@ -267,26 +261,30 @@ Dim SearchTownName As String
         Next i
     
     
-         '------- 要確認住所にマーカー -------
+         
         If WorksheetFunction.CountIf(.Range(.Range("B2"), .Cells(endRow, "B")), "") > 0 Then
         
             .Range("A1").AutoFilter Field:=2, Criteria1:=""
             Set OutputRange = .Range(.Range("B2"), .Cells(endRow, "B"))
             OutputRange.SpecialCells(xlCellTypeVisible).Value = "★該当するデータがないため要確認★"
-        
+            Set OutputRange = Nothing
+            .Range("A1").AutoFilter
+            
         End If
         
-        .Range("A1").AutoFilter
         
+        '------- 要確認住所にマーカー -------
         If WorksheetFunction.CountIf(.Range(.Range("B2"), .Cells(endRow, "B")), "★*") > 0 Then
         
             .Range("A1").AutoFilter Field:=2, Criteria1:="★*"
             Set OutputRange = .Range(.Range("A2"), .Cells(endRow, "A"))
             OutputRange.SpecialCells(xlCellTypeVisible).Interior.Color = vbYellow
-        
+            Set OutputRange = Nothing
+            .Range("A1").AutoFilter
+            
         End If
         
-        .Range("A1").AutoFilter
+        
         
         
         '住所補完
@@ -297,8 +295,15 @@ Dim SearchTownName As String
     
     End With
     
+    
+    Set CityListNo = Nothing
+    Set TownListNo = Nothing
+    Set DupTownDic = Nothing
+    Set DupCityDic = Nothing
+    Set TypoDic = Nothing
+    Set SearchListNo = Nothing
     Set TargetSheet = Nothing
-
+    
     Application.StatusBar = False
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic

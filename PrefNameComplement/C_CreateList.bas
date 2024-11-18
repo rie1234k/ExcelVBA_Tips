@@ -21,7 +21,6 @@ Private TypoDic As Object
 Private ListNo As Collection
 
 
-
 Public Function GetListCollection(PostcodeFileName As String) As Collection
 
     Call SetListNo
@@ -37,7 +36,7 @@ Public Function GetListCollection(PostcodeFileName As String) As Collection
     GetListCollection.Add TownListNo, "TownListNo"
     GetListCollection.Add DupTownDic, "DupTownDic"
     GetListCollection.Add DupCityDic, "DupCityDic"
-     GetListCollection.Add TypoDic, "TypoDic"
+    GetListCollection.Add TypoDic, "TypoDic"
     
 End Function
 Private Sub SetListNo()
@@ -175,7 +174,7 @@ Dim CityDic As Object
             
                 If Not DupCityDic.Exists(CityDic(CityName)("PrefAreaCityName")) Then
                 
-                DupCityDic.Add CityDic(CityName)("PrefAreaCityName"), CityDic(CityName)
+                    DupCityDic.Add CityDic(CityName)("PrefAreaCityName"), CityDic(CityName)
                 
                 End If
                 
@@ -236,10 +235,7 @@ Dim CityDic As Object
             BeforePrefAreaCityName = CityListSet("PrefAreaCityName")
             CityCount = CityCount + 1
             Set CityListSet = Nothing
-            
-            
-            
-            
+    
         End If
         
     Loop Until TextFile.AtEndOfLine
@@ -330,8 +326,9 @@ Dim DupTownCount As Long
  
      Loop Until TextFile.AtEndOfLine
      
-    Set TextFile = Nothing
-    Set FSO = Nothing
+     Set TownDic = Nothing
+     Set TextFile = Nothing
+     Set FSO = Nothing
 
  
 End Sub
