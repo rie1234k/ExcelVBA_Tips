@@ -25,19 +25,15 @@ Dim TargetSeriesIndex As String
 Dim CharStart As Long
 Dim CharLength As Long
 Dim ChangeFormula As String
-    
-
-    
+  
     '------- 設定開始 -------
     Set TargetWorksheet = ActiveSheet
     Set StartItemRange = TargetWorksheet.Range("C3") '開始項目入力セルを設定
     Set EndItemRange = TargetWorksheet.Range("C4") '終了項目入力セルを設定
     '------- 設定終了 -------
-     
 
      TargetWorksheet.Names.Add Name:=TargetWorksheet.Name & "_範囲開始", RefersTo:="='" & TargetWorksheet.Name & "'!" & StartItemRange.Address
      TargetWorksheet.Names.Add Name:=TargetWorksheet.Name & "_範囲終了", RefersTo:="='" & TargetWorksheet.Name & "'!" & EndItemRange.Address
-     
      
      Set TargetSeriesCollection = New Collection
                        
@@ -71,8 +67,7 @@ Dim ChangeFormula As String
                         TargetDirection = "縦"
                         
                     End If
-                    
-                
+
                     Set myItem = New Collection
                     
                     myItem.Add TargetSeries, "系列"
@@ -96,9 +91,7 @@ Dim ChangeFormula As String
      
      Next TargetChartObject
  
- 
- 
-     
+
      For Each myItem In TargetSeriesCollection
             
         'ラベル範囲の起点セルアドレス
@@ -121,12 +114,9 @@ Dim ChangeFormula As String
         StartFormula = "MATCH(" & TargetWorksheet.Name & "_範囲開始," & myItem("グラフ名") & "_軸ラベル範囲全体" & ",0)"
         EndFormula = "MATCH(" & TargetWorksheet.Name & "_範囲終了," & myItem("グラフ名") & "_軸ラベル範囲全体" & ",0)"
         CountFormula = EndFormula & " - " & StartFormula & " +1"
-        
-        
+
         TargetWorksheet.Names.Add Name:=myItem("グラフ名") & "_開始位置", RefersTo:="=" & StartFormula
         TargetWorksheet.Names.Add Name:=myItem("グラフ名") & "_表示件数", RefersTo:="=" & CountFormula
-        
-        
         
          '系列範囲の起点セルアドレス
         TargetSeriesStartStr = Left(myItem("系列範囲"), InStr(myItem("系列範囲"), ":") - 1)
@@ -138,35 +128,25 @@ Dim ChangeFormula As String
                 
                 TargetAxesStartStr = Replace(TargetAxesStartStr, Mid(TargetAxesStartStr, InStr(TargetAxesStartStr, "$") + 1), "A") & Mid(TargetAxesStartStr, InStrRev(TargetAxesStartStr, "$"))
                 TargetSeriesStartStr = Replace(TargetSeriesStartStr, Mid(TargetSeriesStartStr, InStr(TargetAxesStartStr, "$") + 1), "A") & Mid(TargetSeriesStartStr, InStrRev(TargetSeriesStartStr, "$"))
-                
                 TargetWorksheet.Names.Add Name:=myItem("グラフ名") & "_指定軸ラベル範囲", RefersTo:="=OFFSET(" & TargetAxesStartStr & ",0," & myItem("グラフ名") & "_開始位置 -1,1," & myItem("グラフ名") & "_表示件数)"
                 TargetWorksheet.Names.Add Name:=myItem("グラフ名") & "_" & myItem("系列名"), RefersTo:="=OFFSET(" & TargetSeriesStartStr & ",0," & myItem("グラフ名") & "_開始位置 -1,1," & myItem("グラフ名") & "_表示件数)"
-
 
             Case "縦"
             
                 TargetAxesStartStr = Replace(TargetAxesStartStr, Mid(TargetAxesStartStr, InStrRev(TargetAxesStartStr, "$") + 1), "1")
                 TargetWorksheet.Names.Add Name:=myItem("グラフ名") & "_指定軸ラベル範囲", RefersTo:="=OFFSET(" & TargetAxesStartStr & "," & myItem("グラフ名") & "_開始位置 -1,0," & myItem("グラフ名") & "_表示件数,1)"
-
                 TargetSeriesStartStr = Replace(TargetSeriesStartStr, Mid(TargetSeriesStartStr, InStrRev(TargetSeriesStartStr, "$") + 1), "1")
                 TargetWorksheet.Names.Add Name:=myItem("グラフ名") & "_" & myItem("系列名"), RefersTo:="=OFFSET(" & TargetSeriesStartStr & "," & myItem("グラフ名") & "_開始位置 -1,0," & myItem("グラフ名") & "_表示件数,1)"
 
-  
         End Select
         
-         
         ChangeFormula = Replace(myItem("系列").FormulaR1C1, myItem("軸ラベル範囲R1C1"), myItem("グラフ名") & "_指定軸ラベル範囲")
         ChangeFormula = Replace(ChangeFormula, myItem("系列範囲R1C1"), myItem("グラフ名") & "_" & myItem("系列名"))
-
         
         myItem("系列").FormulaR1C1 = ChangeFormula
         
     Next myItem
      
-   
-    TargetWorksheet.Activate
-    TargetWorksheet.Range("A1").Activate
- 
     MsgBox "グラフ設定が完了しました"
     
      
