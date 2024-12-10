@@ -17,6 +17,7 @@ Dim TargetDirection As String
 Dim StartFormula As String
 Dim EndFormula As String
 Dim CountFormula As String
+
 Dim TargetAxesStr As String
 Dim TargetAxesStartStr As String
 Dim TargetSeriesStr As String
@@ -76,8 +77,8 @@ Dim ChangeFormula As String
                     myItem.Add TargetDirection, "軸ラベル方向"
                     myItem.Add TargetSeriesStr, "系列範囲"
                     myItem.Add TargetWorksheet.Range(TargetSeriesStr).Address(ReferenceStyle:=xlR1C1), "系列範囲R1C1"
-                    myItem.Add "系列範囲" & TargetSeriesIndex, "系列名"
-                    myItem.Add Replace(TargetChartObject.Name, " ", ""), "グラフ名"
+                    myItem.Add "指定系列範囲" & TargetSeriesIndex, "系列名"
+                    myItem.Add TargetWorksheet.Name & "_" & Replace(TargetChartObject.Name, " ", ""), "グラフ名"
                     
                     TargetSeriesCollection.Add myItem
                     
@@ -121,7 +122,7 @@ Dim ChangeFormula As String
          '系列範囲の起点セルアドレス
         TargetSeriesStartStr = Left(myItem("系列範囲"), InStr(myItem("系列範囲"), ":") - 1)
         
-        '指定軸ラベル範囲、系列の名前定義
+        '指定軸ラベル範囲、指定系列範囲の名前定義
         Select Case myItem("軸ラベル方向")
               
               Case "横"
@@ -142,7 +143,6 @@ Dim ChangeFormula As String
         
         ChangeFormula = Replace(myItem("系列").FormulaR1C1, myItem("軸ラベル範囲R1C1"), myItem("グラフ名") & "_指定軸ラベル範囲")
         ChangeFormula = Replace(ChangeFormula, myItem("系列範囲R1C1"), myItem("グラフ名") & "_" & myItem("系列名"))
-        
         myItem("系列").FormulaR1C1 = ChangeFormula
         
     Next myItem
