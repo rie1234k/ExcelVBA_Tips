@@ -20,3 +20,6 @@ ExcelVBA用マクロ集 各フォルダの説明
 
 《DynamicChartRange》フォルダ
 グラフの情報を読み取り、グラフのデータ範囲を自動的に変更する設定を行うマクロ
+
+《CreateScheduleCalendar》フォルダ
+予定一覧から予定管理用カレンダーを作成するマクロ
