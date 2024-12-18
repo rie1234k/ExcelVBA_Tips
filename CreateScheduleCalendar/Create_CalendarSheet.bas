@@ -87,12 +87,13 @@ Dim InsertRowCount As Long
         .FormatConditions.Delete
         .FormatConditions.Add Type:=xlExpression, Formula1:="=OFFSET($B4,0,(B$3-1)*4,1,1)=TODAY()"
         .FormatConditions(1).Interior.Color = rgbGold
-        .FormatConditions.Add xlExpression, Formula1:="=WEEKDAY(OFFSET($B4,0,(B$3-1)*4,1,1),2)=6"
-        .FormatConditions(2).Interior.Color = rgbAliceBlue
-        .FormatConditions.Add xlExpression, Formula1:="=WEEKDAY(OFFSET($B4,0,(B$3-1)*4,1,1),2)=7"
-        .FormatConditions(3).Interior.Color = rgbMistyRose
         .FormatConditions.Add xlExpression, Formula1:="=COUNTIF(èjì˙ÉäÉXÉg,OFFSET($B4,0,(B$3-1)*4,1,1))=1"
+        .FormatConditions(2).Interior.Color = rgbMistyRose
+        .FormatConditions.Add xlExpression, Formula1:="=WEEKDAY(OFFSET($B4,0,(B$3-1)*4,1,1),2)=6"
+        .FormatConditions(3).Interior.Color = rgbAliceBlue
+        .FormatConditions.Add xlExpression, Formula1:="=WEEKDAY(OFFSET($B4,0,(B$3-1)*4,1,1),2)=7"
         .FormatConditions(4).Interior.Color = rgbMistyRose
+        
     End With
     
     

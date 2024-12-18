@@ -192,15 +192,20 @@ Dim TargetAddress As String
     
     
     '------- ハイパーリンクの書式変更 -------
-    With ThisWorkbook.Styles("Hyperlink").Font
-        .Underline = xlUnderlineStyleNone
-        .ColorIndex = xlAutomatic
-    End With
-    
-    With ThisWorkbook.Styles("Followed Hyperlink").Font
-        .Underline = xlUnderlineStyleNone
-        .ColorIndex = xlAutomatic
-    End With
+    For i = 1 To ThisWorkbook.Styles.Count
+        
+        If ThisWorkbook.Styles(i).Name Like "*Hyperlink" Then
+        
+            With ThisWorkbook.Styles(i).Font
+                
+                .Underline = xlUnderlineStyleNone
+                .ColorIndex = xlAutomatic
+            
+            End With
+            
+        End If
+
+    Next i
 
     CalendarSheet.Protect
     

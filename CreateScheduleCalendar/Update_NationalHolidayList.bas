@@ -33,7 +33,6 @@ Dim StartChar As Long
         
         End If
         
-    
     Next i
     
     'シートがない場合、新規作成
@@ -49,7 +48,7 @@ Dim StartChar As Long
         
     End If
     
-    TargetFilePath = GetDowunloadFilePath("https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv")
+    TargetFilePath = GetDownloadFilePath("https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv")
     
     Set FSO = CreateObject("Scripting.FileSystemObject")
      
