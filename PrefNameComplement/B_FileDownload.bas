@@ -10,7 +10,7 @@ Private Declare PtrSafe Function DeleteUrlCacheEntry Lib "wininet" Alias "Delete
 (ByVal lpszUrlName As String) As Long
 
 
-Public Sub PostcodeZipFileDowunload(TragetURL As String, PostcodeFileName As String)
+Public Sub PostcodeZipFileDownload(TragetURL As String, PostcodeFileName As String)
 
 Dim iFlag As Long
 

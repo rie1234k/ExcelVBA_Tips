@@ -40,7 +40,7 @@ Dim SearchTownName As String
     
      Application.StatusBar = "データをダウンロード中です..."
     
-    Call PostcodeZipFileDowunload(TargetUrl, PostcodeFileName)
+    Call PostcodeZipFileDownload(TargetUrl, PostcodeFileName)
  
  
     Application.StatusBar = "市区町村リスト・町域リストを作成中です..."
