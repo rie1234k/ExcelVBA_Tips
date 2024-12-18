@@ -24,7 +24,7 @@ Dim InsertRowCount As Long
 
     Next TargetSheet
 
-    Set TargetSheet = Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
+    Set TargetSheet = Sheets.Add(After:=ThisWorkbook.Sheets(1))
     
     ActiveWindow.DisplayGridlines = False
     ActiveWindow.Zoom = 80
@@ -91,6 +91,8 @@ Dim InsertRowCount As Long
         .FormatConditions(2).Interior.Color = rgbAliceBlue
         .FormatConditions.Add xlExpression, Formula1:="=WEEKDAY(OFFSET($B4,0,(B$3-1)*4,1,1),2)=7"
         .FormatConditions(3).Interior.Color = rgbMistyRose
+        .FormatConditions.Add xlExpression, Formula1:="=COUNTIF(èjì˙ÉäÉXÉg,OFFSET($B4,0,(B$3-1)*4,1,1))=1"
+        .FormatConditions(4).Interior.Color = rgbMistyRose
     End With
     
     
