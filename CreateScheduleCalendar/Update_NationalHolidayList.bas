@@ -29,7 +29,7 @@ Dim StartChar As Long
         If ThisWorkbook.Worksheets(i).Name = HolidaySheetName Then
             
             Set TargetSheet = ThisWorkbook.Worksheets(i)
-            TargetYear = Year(TargetSheet.Range("A1").End(xlDown).Value) + 1
+            TargetYear = Year(WorksheetFunction.Max(TargetSheet.Columns(1))) + 1
         
         End If
         
