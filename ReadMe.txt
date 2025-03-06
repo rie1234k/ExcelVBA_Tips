@@ -24,6 +24,5 @@ ExcelVBA用マクロ集 各フォルダの説明
 《CreateScheduleCalendar》フォルダ
 予定一覧から予定管理用カレンダーを作成するマクロ
 
-
 《ApplySameFormatCharts》フォルダ
 選択したグラフの書式・大きさにグラフを統一するマクロ
