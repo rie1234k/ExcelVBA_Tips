@@ -26,3 +26,4 @@ ExcelVBA用マクロ集 各フォルダの説明
 
 《ApplySameFormatCharts》フォルダ
 選択したグラフの書式・大きさにグラフを統一するマクロ
+
