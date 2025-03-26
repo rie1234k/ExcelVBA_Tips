@@ -43,34 +43,36 @@ Dim TargetRow As Long
     '半角の「&」があるとうまく作動しないため、全角の「＆」に置き換え
     Title = Replace(Replace(Replace(WorksheetFunction.Clean(Cells(TargetRow, "D").Value), "　", " "), " ", "%20"), "&", "＆")
     
-    '担当者に"様"をつけて、会社名担当者名を本文の文頭に追加
+    '担当者名に"様"をつけて、会社名・担当者名を本文の文頭に追加
     Body = Cells(TargetRow, "H").Value & vbCrLf & Replace(Cells(TargetRow, "I"), Chr(10), " 様" & Chr(10)) & " 様" & vbCrLf & vbCrLf & Range("B4") & vbCrLf
- 
+    
     
     'クリップボードに文字列を格納
-     With CreateObject("Forms.TextBox.1")
-       .MultiLine = True
-       .Text = Body
-       .SelStart = 0
-       .SelLength = .TextLength
-       .Copy
-     End With
+    With CreateObject("Forms.TextBox.1")
+      .MultiLine = True
+      .Text = Body
+      .SelStart = 0
+      .SelLength = .TextLength
+      .Copy
+    End With
     
-      Set myHyperlink = Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), _
-                        Address:="mailto:" & Cells(TargetRow, "E") & _
-                        "?cc=" & Cells(TargetRow, "F") & _
-                        "&bcc=" & Cells(TargetRow, "G") & _
-                        "&subject=" & Title, _
-                        TextToDisplay:=Cells(TargetRow, "E").Value, ScreenTip:="メールアドレスをクリック")
+    'mailtoリンクを作成
+    Set myHyperlink = Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), _
+                       Address:="mailto:" & Cells(TargetRow, "E") & _
+                       "?cc=" & Cells(TargetRow, "F") & _
+                       "&bcc=" & Cells(TargetRow, "G") & _
+                       "&subject=" & Title, _
+                       TextToDisplay:=Cells(TargetRow, "E").Value, ScreenTip:="メールアドレスをクリック")
     
+    'イベントを無効化して、リンクをクリック
+    Application.EnableEvents = False
+    Selection.Hyperlinks(1).Follow
+    Application.EnableEvents = True
     
-      Application.EnableEvents = False
-      Selection.Hyperlinks(1).Follow
-      Application.EnableEvents = True
-      
-      Set myHyperlink = ActiveSheet.Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), Address:="", ScreenTip:="メールアドレスをクリック")
-      
-      
+    '空のハイパーリンクに戻す
+    Set myHyperlink = ActiveSheet.Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), Address:="", ScreenTip:="メールアドレスをクリック")
+    
+ 
       
 End Sub
 
