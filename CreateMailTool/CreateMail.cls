@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
 
-Private Sub CreateBlankLink()
+Public Sub CreateBlankLink()
 
 Dim i As Long
 Dim myHyperlink  As Hyperlink
