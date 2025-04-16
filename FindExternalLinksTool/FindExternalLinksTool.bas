@@ -20,30 +20,27 @@ Dim myDic As Object
     
     Set TargetBook = Workbooks.Open(Filename:=ThisWorkbook.Sheets("設定").Range("B2").Value, UpdateLinks:=False)
     
-     '非表示シートを表示
+    '非表示シートを表示
     For i = 1 To TargetBook.Worksheets.Count
 
         TargetBook.Worksheets(i).Visible = xlSheetVisible
 
     Next i
-    
-    'ブックのリンク取得
+
+    'ブックリンク情報の取得
     myLinkSources = TargetBook.LinkSources
     
     Set Fso = CreateObject("Scripting.FileSystemObject")
     Set myDic = CreateObject("Scripting.Dictionary")
     
     For i = 1 To UBound(myLinkSources)
-        
-        
-        '検索用のファイル名の辞書を作成
+
         If Not myDic.Exists(Fso.GetFileName(myLinkSources(i))) Then
         
             myDic.Add Fso.GetFileName(myLinkSources(i)), Fso.GetFileName(myLinkSources(i))
         
         End If
-        
-    
+
     Next i
     
     Set Fso = Nothing
@@ -82,7 +79,7 @@ Dim StartFindRange As Range
     
     For Each mySheet In TargetBook.Worksheets
           
-        Set FindRange = mySheet.Cells.Find(TargetFileName)
+        Set FindRange = mySheet.Cells.Find(TargetFileName, LookIn:=xlFormulas, Lookat:=xlPart)
         
         If Not FindRange Is Nothing Then
             
@@ -106,12 +103,8 @@ Dim StartFindRange As Range
                 Set FindRange = mySheet.Cells.FindNext(FindRange)
                 
                 '最初に見つかったセルに戻ったら終了
-                If StartFindRange.Address = FindRange.Address Then
-                    
-                    Exit Do
-                
-                End If
-                
+                If StartFindRange.Address = FindRange.Address Then Exit Do
+    
                 If FindRange.HasFormula And InStr(FindRange.Formula, "[") > 0 Then
                  
                      TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
@@ -133,6 +126,7 @@ Dim StartFindRange As Range
 End Sub
 
 Private Sub SearchNames()
+
 Dim TargetRow As Long
 Dim MyName As Name
 Dim i As Long
@@ -179,7 +173,9 @@ Dim myDic As Object
    On Error Resume Next
           
    For Each mySheet In TargetBook.Worksheets
-             
+         
+        iCount = 0
+         
         'エラーの場合（＝入力規則が存在しない）　値は0のままで次へ
         iCount = mySheet.Cells.SpecialCells(xlCellTypeAllValidation).Count
 
@@ -191,7 +187,7 @@ Dim myDic As Object
                 '同じ入力規則が設定されているセルをまとめる
                 Set mySameRange = myRange.SpecialCells(xlCellTypeSameValidation)
                 
-                'Dictionaryにまとめた範囲がない場合、Dictionaryに追加して出力
+                'Dictionaryにまとめた範囲がない場合、Dictionaryに追加
                 If Not myDic.Exists(mySameRange.Address) Then
         
                     myDic.Add mySameRange.Address, mySameRange.Address
@@ -318,17 +314,16 @@ Dim TargetObj As Object
                        
                        If TargetObj.Value Like "*" & TargetFileName & "*" Then
                             
-                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        
-                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
-                        OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                        OutputSheet.Cells(TargetRow, "E").Value = "'" & TargetObj.Value
-                        Exit For
+                            TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
                             
-                    End If
-                        
+                            OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                            OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                            OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
+                            OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
+                            OutputSheet.Cells(TargetRow, "E").Value = "'" & TargetObj.Value
+                            Exit For
+                                
+                        End If
                         
                     Next TargetObj
                 
@@ -417,7 +412,7 @@ Dim ChackFormulaString As String
             
             If Not "Label/GroupBox/Button" Like "*" & TypeName(myShape.DrawingObject) & "*" Then
                 
-                If TypeName(myShape.DrawingObject) <> "DropDown" Or DropdownChack(mySheet, myShape) Then
+                If TypeName(myShape.DrawingObject) <> "DropDown" Or DropDownChack(mySheet, myShape) Then
                 
                     If myShape.DrawingObject.LinkedCell Like "*" & TargetFileName & "*" Then
                                   
@@ -433,7 +428,7 @@ Dim ChackFormulaString As String
 
                 End If
  
-                If TypeName(myShape.DrawingObject) = "ListBox" Or DropdownChack(mySheet, myShape) Then
+                If TypeName(myShape.DrawingObject) = "ListBox" Or DropDownChack(mySheet, myShape) Then
                 
                     If myShape.DrawingObject.ListFillRange Like "*" & TargetFileName & "*" Then
 
@@ -441,7 +436,7 @@ Dim ChackFormulaString As String
                        
                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                       OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / リスト範囲"
+                       OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / 入力範囲"
                        OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.ListFillRange
 
@@ -462,7 +457,7 @@ Dim ChackFormulaString As String
                     
                     OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                     OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                    OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / リンク参照"
+                    OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / セル参照"
                     OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
                     OutputSheet.Cells(TargetRow, "E").Value = "'" & ChackSheet.DrawingObjects.LinkedCell
                     
@@ -588,7 +583,7 @@ Dim ChackFormulaString As String
                 
                 OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                 OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / リンク参照"
+                OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / セル参照"
                 OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
                 OutputSheet.Cells(TargetRow, "E").Value = myShape.DrawingObject.Formula
     
@@ -606,14 +601,14 @@ End Sub
 
 
 '入力規則のドロップダウン除外用
-Private Function DropdownChack(mySheet As Worksheet, myShape As Shape) As Boolean
+Private Function DropDownChack(mySheet As Worksheet, myShape As Shape) As Boolean
 Dim myDropDown As DropDown
 
-    DropdownChack = False
+    DropDownChack = False
     
     For Each myDropDown In mySheet.DropDowns
         
-        If myDropDown.Name = myShape.Name Then DropdownChack = True
+        If myDropDown.Name = myShape.Name Then DropDownChack = True
 
     Next myDropDown
     
