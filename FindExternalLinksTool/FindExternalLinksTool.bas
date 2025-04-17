@@ -22,9 +22,9 @@ Dim myDic As Object
     
     '非表示シートを表示
     For i = 1 To TargetBook.Worksheets.Count
-
+    
         TargetBook.Worksheets(i).Visible = xlSheetVisible
-
+        
     Next i
 
     'ブックリンク情報の取得
@@ -34,13 +34,13 @@ Dim myDic As Object
     Set myDic = CreateObject("Scripting.Dictionary")
     
     For i = 1 To UBound(myLinkSources)
-
+    
         If Not myDic.Exists(Fso.GetFileName(myLinkSources(i))) Then
         
             myDic.Add Fso.GetFileName(myLinkSources(i)), Fso.GetFileName(myLinkSources(i))
-        
+            
         End If
-
+        
     Next i
     
     Set Fso = Nothing
@@ -48,7 +48,7 @@ Dim myDic As Object
     For i = 0 To myDic.Count - 1
     
         TargetFileName = myDic.Items()(i)
-            
+      
         Call SearchCells
         Call SearchNames
         Call SearchValidation
@@ -86,15 +86,14 @@ Dim StartFindRange As Range
             Set StartFindRange = FindRange
                  
             If FindRange.HasFormula = True And InStr(FindRange.Formula, "[") > 0 Then
-                
+            
                 TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                
                 OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                 OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                 OutputSheet.Cells(TargetRow, "C").Value = "セル"
                 OutputSheet.Cells(TargetRow, "D").Value = FindRange.Address
                 OutputSheet.Cells(TargetRow, "E").Value = "'" & FindRange.Formula
-            
+                
             End If
             
             '次の検索
@@ -108,7 +107,6 @@ Dim StartFindRange As Range
                 If FindRange.HasFormula And InStr(FindRange.Formula, "[") > 0 Then
                  
                      TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                     
                      OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                      OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                      OutputSheet.Cells(TargetRow, "C").Value = "セル"
@@ -144,7 +142,6 @@ Dim i As Long
         If MyName.Value Like "*" & TargetFileName & "*" Then
             
              TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-            
              OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
              OutputSheet.Cells(TargetRow, "B").Value = "―"
              OutputSheet.Cells(TargetRow, "C").Value = "名前定義"
@@ -194,25 +191,20 @@ Dim myDic As Object
         
                     Set myValidation = mySameRange.Validation
 
-                    
                     If myValidation.Formula1 Like "*" & TargetFileName & "*" Then
-               
                         
                         TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        
                         OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                         OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                         OutputSheet.Cells(TargetRow, "C").Value = "入力規則 "
                         OutputSheet.Cells(TargetRow, "D").Value = mySameRange.Address
                         OutputSheet.Cells(TargetRow, "E").Value = "'" & myValidation.Formula1
-
-                        
+  
                     ElseIf myValidation.Operator = xlBetween Or myValidation.Operator = xlNotBetween Then
                     
                         If myValidation.Formula2 Like "*" & TargetFileName & "*" Then
                             
                             TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                            
                             OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                             OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                             OutputSheet.Cells(TargetRow, "C").Value = "入力規則 "
@@ -246,56 +238,45 @@ Dim TargetObj As Object
         
         For Each myFormatCondition In mySheet.Cells.FormatConditions
                            
-            Select Case TypeName(myFormatCondition)
+            Select Case myFormatCondition.Type
             
-                Case "FormatCondition"
+                Case xlCellValue, xlTextString, xlExpression
                     
-                    If myFormatCondition.Type = xlCellValue _
-                       Or myFormatCondition.Type = xlTextString _
-                       Or myFormatCondition.Type = xlExpression Then
+                    If myFormatCondition.Formula1 Like "*" & TargetFileName & "*" Then
+                    
+                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                        OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
+                        OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
+                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.Formula1
+
+                    ElseIf myFormatCondition.Type = xlCellValue Then
                         
-                        If myFormatCondition.Formula1 Like "*" & TargetFileName & "*" Then
-                        
-                            TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                        If myFormatCondition.Operator = xlBetween Or myFormatCondition.Operator = xlNotBetween Then
                             
-                            OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                            OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                            OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
-                            OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                            OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.Formula1
-                        
-                        
-                        ElseIf myFormatCondition.Type = xlCellValue Then
+                            If myFormatCondition.Formula2 Like "*" & TargetFileName & "*" Then
                             
-                            If myFormatCondition.Operator = xlBetween Or myFormatCondition.Operator = xlNotBetween Then
+                                TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                                OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                                OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                                OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式 セルの値"
+                                OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
+                                OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.Formula2
                                 
-                                If myFormatCondition.Formula2 Like "*" & TargetFileName & "*" Then
-                                
-                                    TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                                    
-                                    OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                                    OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                                    OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式 セルの値"
-                                    OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                                    OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.Formula2
-                                    
-                                End If
-                            
                             End If
-                            
+                        
                         End If
                         
                     End If
-                
-                
-                Case "ColorScale"
+
+                Case xlColorScale
                     
                     For Each TargetObj In myFormatCondition.ColorScaleCriteria
                         
                         If TargetObj.Value Like "*" & TargetFileName & "*" Then
                             
                             TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                            
                             OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                             OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                             OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
@@ -308,14 +289,13 @@ Dim TargetObj As Object
                     Next TargetObj
                     
                     
-                Case "IconSetCondition"
+                Case xlIconSets
                     
                     For Each TargetObj In myFormatCondition.IconCriteria
                        
                        If TargetObj.Value Like "*" & TargetFileName & "*" Then
                             
                             TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                            
                             OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                             OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                             OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
@@ -328,12 +308,11 @@ Dim TargetObj As Object
                     Next TargetObj
                 
                 
-                Case "Databar"
+                Case xlDatabar
                 
                     If myFormatCondition.MaxPoint.Value Like "*" & TargetFileName & "*" Then
                         
                         TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        
                         OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                         OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                         OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
@@ -343,7 +322,6 @@ Dim TargetObj As Object
                     ElseIf myFormatCondition.MinPoint.Value Like "*" & TargetFileName & "*" Then
                         
                         TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        
                         OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                         OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                         OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
@@ -351,8 +329,7 @@ Dim TargetObj As Object
                         OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.MaxPoint.Value
                         
                     End If
-                
-                
+
             End Select
         
         Next myFormatCondition
@@ -366,17 +343,15 @@ Private Sub SearchShapes()
 Dim mySheet As Worksheet
 Dim myShape As Shape
 Dim TargetRow As Long
-
-     
+ 
     For Each mySheet In TargetBook.Worksheets
     
         For Each myShape In mySheet.Shapes
-        
+            
             Call SerchShapeProcess(mySheet, myShape)
         
         Next myShape
-    
-    
+
     Next mySheet
     
 End Sub
@@ -386,13 +361,13 @@ End Sub
 Private Sub SerchShapeProcess(mySheet As Worksheet, myShape As Shape)
 
 Dim TargetRow As Long
+Dim myShapeTypeName As String
+Dim myGroupShape As Shape
 Dim TargetAxis As Object
 Dim mySeries As Series
-Dim myGroupShape As Shape
-Dim myShapeTypeName As String
 Dim ChackSheet As Worksheet
-Dim ChackOnActionString As String
 Dim ChackFormulaString As String
+Dim ChackOnActionString As String
 
     myShapeTypeName = "図形"
     
@@ -415,7 +390,6 @@ Dim ChackFormulaString As String
                 If myShape.Chart.ChartTitle.Formula Like "*" & TargetFileName & "*" Then
                          
                     TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                    
                     OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                     OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                     OutputSheet.Cells(TargetRow, "C").Value = "グラフタイトル"
@@ -432,15 +406,13 @@ Dim ChackFormulaString As String
                 If TargetAxis.HasTitle Then
                     
                     If TargetAxis.AxisTitle.Formula Like "*" & TargetFileName & "*" Then
-                        
-            
+
                          TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                         
                          OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                          OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                          
                          Select Case TargetAxis.Type
-                            
+
                             Case xlValue
                             
                                 OutputSheet.Cells(TargetRow, "C").Value = "グラフ数値軸タイトル"
@@ -469,7 +441,6 @@ Dim ChackFormulaString As String
                 If mySeries.Formula Like "*" & TargetFileName & "*" Then
                 
                     TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                    
                     OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                     OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                     OutputSheet.Cells(TargetRow, "C").Value = "グラフ系列範囲 / " & mySeries.Name
@@ -479,76 +450,77 @@ Dim ChackFormulaString As String
                 End If
              
             Next mySeries
-            
-            
+
         Case msoFormControl
+            
+            '入力規則のドロップダウンの確認
+            If myShape.FormControlType = xlDropDown Then
+                
+                If Not DropDownChack(mySheet, myShape) Then Exit Sub
+            
+            End If
             
             myShapeTypeName = "フォームコントロール"
             
-            If Not "Label/GroupBox/Button" Like "*" & TypeName(myShape.DrawingObject) & "*" Then
+            Select Case myShape.FormControlType
                 
-                If TypeName(myShape.DrawingObject) <> "DropDown" Or DropDownChack(mySheet, myShape) Then
+                Case xlLabel, xlGroupBox
+            
+                    Set ChackSheet = TargetBook.Sheets.Add
                 
-                    If myShape.DrawingObject.LinkedCell Like "*" & TargetFileName & "*" Then
+                     myShape.Copy
+                     ChackSheet.Paste
+                     
+                     If ChackSheet.DrawingObjects.LinkedCell Like "*" & TargetFileName & "*" Then
                                   
+                         TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                         
+                         OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                         OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                         OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / セル参照"
+                         OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
+                         OutputSheet.Cells(TargetRow, "E").Value = "'" & ChackSheet.DrawingObjects.LinkedCell
+                         
+                     End If
+                     
+                     Application.DisplayAlerts = False
+                    
+                     ChackSheet.Delete
+                    
+                     Application.DisplayAlerts = True
+                     
+                
+                Case Is <> xlButtonControl
+                            
+                    If myShape.DrawingObject.LinkedCell Like "*" & TargetFileName & "*" Then
+                              
                         TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        
                         OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                         OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / リンクセル"
+                        OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / リンクするセル"
                         OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
                         OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.LinkedCell
 
                     End If
+                    
+                    If myShape.FormControlType = xlListBox Or myShape.FormControlType = xlDropDown Then
+            
+                        If myShape.DrawingObject.ListFillRange Like "*" & TargetFileName & "*" Then
 
-                End If
- 
-                If TypeName(myShape.DrawingObject) = "ListBox" Or DropDownChack(mySheet, myShape) Then
-                
-                    If myShape.DrawingObject.ListFillRange Like "*" & TargetFileName & "*" Then
+                            TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                            OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                            OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                            OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / 入力範囲"
+                            OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
+                            OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.ListFillRange
 
-                       TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                       
-                       OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                       OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                       OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / 入力範囲"
-                       OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                       OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.ListFillRange
-
+                        End If
+                        
                     End If
 
-                End If
-               
-            ElseIf TypeName(myShape.DrawingObject) = "Label" Or TypeName(myShape.DrawingObject) = "GroupBox" Then
-            
-                Set ChackSheet = TargetBook.Sheets.Add
-                
-                myShape.Copy
-                ChackSheet.Paste
-                
-                If ChackSheet.DrawingObjects.LinkedCell Like "*" & TargetFileName & "*" Then
-                             
-                    TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                    
-                    OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                    OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                    OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / セル参照"
-                    OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                    OutputSheet.Cells(TargetRow, "E").Value = "'" & ChackSheet.DrawingObjects.LinkedCell
-                    
-                End If
-                
-                Application.DisplayAlerts = False
-               
-                ChackSheet.Delete
-               
-                Application.DisplayAlerts = True
-               
-            End If
-            
-            
+            End Select
+    
     End Select
-      
      
     If myShape.Type <> msoGroup Then
         
@@ -562,7 +534,6 @@ Dim ChackFormulaString As String
             If myShape.DrawingObject.Formula Like "*" & TargetFileName & "*" Then
  
                 TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                
                 OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                 OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                 OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / セル参照"
@@ -572,8 +543,7 @@ Dim ChackFormulaString As String
             End If
         
         End If
-        
-        
+   
         'OnActionプロパティがない場合、エラーで空白のまま次へ
         ChackOnActionString = myShape.OnAction
          
@@ -582,7 +552,6 @@ Dim ChackFormulaString As String
             If myShape.OnAction Like "*" & TargetFileName & "*" Then
    
                 TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                
                 OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
                 OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                 OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / マクロ登録"
@@ -596,9 +565,7 @@ Dim ChackFormulaString As String
     End If
     
     On Error GoTo 0
-    
-    
-    
+  
 End Sub
 
 
@@ -610,11 +577,9 @@ Dim myDropDown As DropDown
     
     For Each myDropDown In mySheet.DropDowns
         
-        If myDropDown.Name = myShape.Name Then DropDownChack = True
-
+        If myDropDown.Name = myShape.Name Then DropDownChack = True: Exit For
+      
     Next myDropDown
-    
-        
 
 End Function
 
