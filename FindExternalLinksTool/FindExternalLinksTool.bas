@@ -402,7 +402,7 @@ Dim ChackFormulaString As String
             
             For Each myGroupShape In myShape.GroupItems
             
-                Call SerchShapesProcess(mySheet, myGroupShape)
+                Call SerchShapeProcess(mySheet, myGroupShape)
             
             Next myGroupShape
         
