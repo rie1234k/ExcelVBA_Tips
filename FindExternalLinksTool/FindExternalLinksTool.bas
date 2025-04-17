@@ -405,73 +405,7 @@ Dim ChackFormulaString As String
                 Call SerchShapeProcess(mySheet, myGroupShape)
             
             Next myGroupShape
-        
-        Case msoFormControl
-            
-            myShapeTypeName = "フォームコントロール"
-            
-            If Not "Label/GroupBox/Button" Like "*" & TypeName(myShape.DrawingObject) & "*" Then
-                
-                If TypeName(myShape.DrawingObject) <> "DropDown" Or DropDownChack(mySheet, myShape) Then
-                
-                    If myShape.DrawingObject.LinkedCell Like "*" & TargetFileName & "*" Then
-                                  
-                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        
-                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / リンクセル"
-                        OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.LinkedCell
-
-                    End If
-
-                End If
- 
-                If TypeName(myShape.DrawingObject) = "ListBox" Or DropDownChack(mySheet, myShape) Then
-                
-                    If myShape.DrawingObject.ListFillRange Like "*" & TargetFileName & "*" Then
-
-                       TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                       
-                       OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                       OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                       OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / 入力範囲"
-                       OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                       OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.ListFillRange
-
-                    End If
-
-                End If
-               
-            ElseIf TypeName(myShape.DrawingObject) = "Label" Or TypeName(myShape.DrawingObject) = "GroupBox" Then
-            
-                Set ChackSheet = TargetBook.Sheets.Add
-                
-                myShape.Copy
-                ChackSheet.Paste
-                
-                If ChackSheet.DrawingObjects.LinkedCell Like "*" & TargetFileName & "*" Then
-                             
-                    TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                    
-                    OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                    OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                    OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / セル参照"
-                    OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                    OutputSheet.Cells(TargetRow, "E").Value = "'" & ChackSheet.DrawingObjects.LinkedCell
-                    
-                End If
-                
-                Application.DisplayAlerts = False
-               
-                ChackSheet.Delete
-               
-                Application.DisplayAlerts = True
-               
-    
-            End If
-            
+     
         Case msoChart
             
             myShapeTypeName = "グラフ"
@@ -545,32 +479,80 @@ Dim ChackFormulaString As String
                 End If
              
             Next mySeries
+            
+            
+        Case msoFormControl
+            
+            myShapeTypeName = "フォームコントロール"
+            
+            If Not "Label/GroupBox/Button" Like "*" & TypeName(myShape.DrawingObject) & "*" Then
+                
+                If TypeName(myShape.DrawingObject) <> "DropDown" Or DropDownChack(mySheet, myShape) Then
+                
+                    If myShape.DrawingObject.LinkedCell Like "*" & TargetFileName & "*" Then
+                                  
+                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                        
+                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                        OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / リンクセル"
+                        OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
+                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.LinkedCell
 
+                    End If
+
+                End If
+ 
+                If TypeName(myShape.DrawingObject) = "ListBox" Or DropDownChack(mySheet, myShape) Then
+                
+                    If myShape.DrawingObject.ListFillRange Like "*" & TargetFileName & "*" Then
+
+                       TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                       
+                       OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                       OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                       OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / 入力範囲"
+                       OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
+                       OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.ListFillRange
+
+                    End If
+
+                End If
+               
+            ElseIf TypeName(myShape.DrawingObject) = "Label" Or TypeName(myShape.DrawingObject) = "GroupBox" Then
+            
+                Set ChackSheet = TargetBook.Sheets.Add
+                
+                myShape.Copy
+                ChackSheet.Paste
+                
+                If ChackSheet.DrawingObjects.LinkedCell Like "*" & TargetFileName & "*" Then
+                             
+                    TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                    
+                    OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                    OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                    OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / セル参照"
+                    OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
+                    OutputSheet.Cells(TargetRow, "E").Value = "'" & ChackSheet.DrawingObjects.LinkedCell
+                    
+                End If
+                
+                Application.DisplayAlerts = False
+               
+                ChackSheet.Delete
+               
+                Application.DisplayAlerts = True
+               
+            End If
+            
+            
     End Select
       
      
     If myShape.Type <> msoGroup Then
         
         On Error Resume Next
-        
-        'OnActionプロパティがない場合、エラーで空白のまま次へ
-        ChackOnActionString = myShape.OnAction
-         
-        If ChackOnActionString <> "" Then
-
-            If myShape.OnAction Like "*" & TargetFileName & "*" Then
-   
-                TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                
-                OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / マクロ登録"
-                OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                OutputSheet.Cells(TargetRow, "E").Value = myShape.OnAction
- 
-            End If
-        
-        End If
         
         'Formulaプロパティがない場合、エラーで空白のまま次へ
         ChackFormulaString = myShape.DrawingObject.Formula
@@ -587,6 +569,26 @@ Dim ChackFormulaString As String
                 OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
                 OutputSheet.Cells(TargetRow, "E").Value = myShape.DrawingObject.Formula
     
+            End If
+        
+        End If
+        
+        
+        'OnActionプロパティがない場合、エラーで空白のまま次へ
+        ChackOnActionString = myShape.OnAction
+         
+        If ChackOnActionString <> "" Then
+
+            If myShape.OnAction Like "*" & TargetFileName & "*" Then
+   
+                TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                
+                OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+                OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
+                OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / マクロ登録"
+                OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
+                OutputSheet.Cells(TargetRow, "E").Value = myShape.OnAction
+ 
             End If
         
         End If
