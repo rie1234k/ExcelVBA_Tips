@@ -372,7 +372,7 @@ Dim TargetRow As Long
     
         For Each myShape In mySheet.Shapes
         
-            Call SerchShapesProcess(mySheet, myShape)
+            Call SerchShapeProcess(mySheet, myShape)
         
         Next myShape
     
@@ -383,7 +383,7 @@ End Sub
 
 
 
-Private Sub SerchShapesProcess(mySheet As Worksheet, myShape As Shape)
+Private Sub SerchShapeProcess(mySheet As Worksheet, myShape As Shape)
 
 Dim TargetRow As Long
 Dim TargetAxis As Object
