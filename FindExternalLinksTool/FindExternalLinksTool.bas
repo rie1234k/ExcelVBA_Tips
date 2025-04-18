@@ -78,6 +78,13 @@ Dim TargetRow As Long
 Dim StartFindRange As Range
     
     For Each mySheet In TargetBook.Worksheets
+        
+        'オートフィルタクリア
+        If mySheet.FilterMode Then ActiveSheet.ShowAllData
+        
+        '非表示行・列を表示
+        mySheet.Cells.EntireRow.Hidden = False
+        mySheet.Cells.EntireColumn.Hidden = False
           
         Set FindRange = mySheet.Cells.Find(TargetFileName, LookIn:=xlFormulas, Lookat:=xlPart)
         
