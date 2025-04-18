@@ -93,14 +93,9 @@ Dim StartFindRange As Range
             Set StartFindRange = FindRange
                  
             If FindRange.HasFormula = True And InStr(FindRange.Formula, "[") > 0 Then
-            
-                TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                OutputSheet.Cells(TargetRow, "C").Value = "セル"
-                OutputSheet.Cells(TargetRow, "D").Value = FindRange.Address
-                OutputSheet.Cells(TargetRow, "E").Value = "'" & FindRange.Formula
                 
+                Call OutputProcess(mySheet.Name, "セル", FindRange.Address, "'" & FindRange.Formula)
+
             End If
             
             '次の検索
@@ -112,13 +107,8 @@ Dim StartFindRange As Range
                 If StartFindRange.Address = FindRange.Address Then Exit Do
     
                 If FindRange.HasFormula And InStr(FindRange.Formula, "[") > 0 Then
-                 
-                     TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                     OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                     OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                     OutputSheet.Cells(TargetRow, "C").Value = "セル"
-                     OutputSheet.Cells(TargetRow, "D").Value = FindRange.Address
-                     OutputSheet.Cells(TargetRow, "E").Value = "'" & FindRange.Formula
+                    
+                    Call OutputProcess(mySheet.Name, "セル", FindRange.Address, "'" & FindRange.Formula)
                  
                  End If
             
@@ -148,12 +138,7 @@ Dim i As Long
 
         If MyName.Value Like "*" & TargetFileName & "*" Then
             
-             TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-             OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-             OutputSheet.Cells(TargetRow, "B").Value = "―"
-             OutputSheet.Cells(TargetRow, "C").Value = "名前定義"
-             OutputSheet.Cells(TargetRow, "D").Value = MyName.Name
-             OutputSheet.Cells(TargetRow, "E").Value = "'" & MyName.Value
+            Call OutputProcess("―", "名前定義", MyName.Name, "'" & MyName.Value)
              
         End If
       
@@ -168,7 +153,6 @@ Dim myRange As Range
 Dim mySameRange As Range
 Dim myValidation As Validation
 Dim iCount As Long
-Dim TargetRow As Long
 Dim myDic As Object
 
 
@@ -200,24 +184,14 @@ Dim myDic As Object
 
                     If myValidation.Formula1 Like "*" & TargetFileName & "*" Then
                         
-                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "入力規則 "
-                        OutputSheet.Cells(TargetRow, "D").Value = mySameRange.Address
-                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myValidation.Formula1
+                        Call OutputProcess(mySheet.Name, "入力規則", mySameRange.Address, "'" & myValidation.Formula1)
   
                     ElseIf myValidation.Operator = xlBetween Or myValidation.Operator = xlNotBetween Then
                     
                         If myValidation.Formula2 Like "*" & TargetFileName & "*" Then
                             
-                            TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                            OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                            OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                            OutputSheet.Cells(TargetRow, "C").Value = "入力規則 "
-                            OutputSheet.Cells(TargetRow, "D").Value = mySameRange.Address
-                            OutputSheet.Cells(TargetRow, "E").Value = "'" & myValidation.Formula2
-                        
+                            Call OutputProcess(mySheet.Name, "入力規則", mySameRange.Address, "'" & myValidation.Formula2)
+                                                
                         End If
 
                     End If
@@ -238,7 +212,6 @@ Private Sub SearchFormatConditions()
 
 Dim mySheet As Worksheet
 Dim myFormatCondition As Object
-Dim TargetRow As Long
 Dim TargetObj As Object
 
     For Each mySheet In TargetBook.Worksheets
@@ -250,26 +223,16 @@ Dim TargetObj As Object
                 Case xlCellValue, xlTextString, xlExpression
                     
                     If myFormatCondition.Formula1 Like "*" & TargetFileName & "*" Then
-                    
-                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
-                        OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.Formula1
-
+                        
+                        Call OutputProcess(mySheet.Name, "条件付き書式", myFormatCondition.AppliesTo.Address, "'" & myFormatCondition.Formula1)
+                        
                     ElseIf myFormatCondition.Type = xlCellValue Then
                         
                         If myFormatCondition.Operator = xlBetween Or myFormatCondition.Operator = xlNotBetween Then
                             
                             If myFormatCondition.Formula2 Like "*" & TargetFileName & "*" Then
                             
-                                TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                                OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                                OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                                OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式 セルの値"
-                                OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                                OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.Formula2
+                                Call OutputProcess(mySheet.Name, "条件付き書式", myFormatCondition.AppliesTo.Address, "'" & myFormatCondition.Formula2)
                                 
                             End If
                         
@@ -283,12 +246,7 @@ Dim TargetObj As Object
                         
                         If TargetObj.Value Like "*" & TargetFileName & "*" Then
                             
-                            TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                            OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                            OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                            OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
-                            OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                            OutputSheet.Cells(TargetRow, "E").Value = "'" & TargetObj.Value
+                            Call OutputProcess(mySheet.Name, "条件付き書式", myFormatCondition.AppliesTo.Address, "'" & TargetObj.Value)
                             Exit For
                             
                         End If
@@ -302,12 +260,7 @@ Dim TargetObj As Object
                        
                        If TargetObj.Value Like "*" & TargetFileName & "*" Then
                             
-                            TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                            OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                            OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                            OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
-                            OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                            OutputSheet.Cells(TargetRow, "E").Value = "'" & TargetObj.Value
+                            Call OutputProcess(mySheet.Name, "条件付き書式", myFormatCondition.AppliesTo.Address, "'" & TargetObj.Value)
                             Exit For
                                 
                         End If
@@ -319,21 +272,11 @@ Dim TargetObj As Object
                 
                     If myFormatCondition.MaxPoint.Value Like "*" & TargetFileName & "*" Then
                         
-                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
-                        OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.MaxPoint.Value
+                        Call OutputProcess(mySheet.Name, "条件付き書式", myFormatCondition.AppliesTo.Address, "'" & myFormatCondition.MaxPoint.Value)
                         
                     ElseIf myFormatCondition.MinPoint.Value Like "*" & TargetFileName & "*" Then
                         
-                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "条件付き書式"
-                        OutputSheet.Cells(TargetRow, "D").Value = myFormatCondition.AppliesTo.Address
-                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myFormatCondition.MaxPoint.Value
+                        Call OutputProcess(mySheet.Name, "条件付き書式", myFormatCondition.AppliesTo.Address, "'" & myFormatCondition.MaxPoint.Value)
                         
                     End If
 
@@ -369,10 +312,10 @@ End Sub
 
 Private Sub SerchShapeProcess(mySheet As Worksheet, myShape As Shape)
 
-Dim TargetRow As Long
 Dim myShapeTypeName As String
 Dim myGroupShape As Shape
 Dim TargetAxis As Object
+Dim AxisName As String
 Dim mySeries As Series
 Dim ChackSheet As Worksheet
 Dim ChackFormulaString As String
@@ -400,12 +343,7 @@ Dim ChackOnActionString As String
                 
                 If myShape.Chart.ChartTitle.Formula Like "*" & TargetFileName & "*" Then
                          
-                    TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                    OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                    OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                    OutputSheet.Cells(TargetRow, "C").Value = "グラフタイトル"
-                    OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                    OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.Chart.ChartTitle.Formula
+                    Call OutputProcess(mySheet.Name, "グラフタイトル", myShape.Name, "'" & myShape.Chart.ChartTitle.Formula)
                     
                 End If
                 
@@ -417,29 +355,25 @@ Dim ChackOnActionString As String
                 If TargetAxis.HasTitle Then
                     
                     If TargetAxis.AxisTitle.Formula Like "*" & TargetFileName & "*" Then
-
-                         TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                         OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                         OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
                          
                          Select Case TargetAxis.Type
 
                             Case xlValue
                             
-                                OutputSheet.Cells(TargetRow, "C").Value = "グラフ数値軸タイトル"
+                                AxisName = "グラフ数値軸タイトル"
                          
                             Case xlCategory
                                 
-                                OutputSheet.Cells(TargetRow, "C").Value = "グラフ項目軸タイトル"
+                                AxisName = "グラフ項目軸タイトル"
                             
                             Case Else
                             
-                                OutputSheet.Cells(TargetRow, "C").Value = "グラフ軸タイトル"
+                                AxisName = "グラフ軸タイトル"
                                 
                          End Select
                          
-                         OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                         OutputSheet.Cells(TargetRow, "E").Value = "'" & TargetAxis.AxisTitle.Formula
+                         Call OutputProcess(mySheet.Name, AxisName, myShape.Name, "'" & TargetAxis.AxisTitle.Formula)
+                         
                     
                     End If
 
@@ -450,14 +384,9 @@ Dim ChackOnActionString As String
             For Each mySeries In myShape.Chart.FullSeriesCollection
         
                 If mySeries.Formula Like "*" & TargetFileName & "*" Then
-                
-                    TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                    OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                    OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                    OutputSheet.Cells(TargetRow, "C").Value = "グラフ系列範囲 / " & mySeries.Name
-                    OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                    OutputSheet.Cells(TargetRow, "E").Value = "'" & mySeries.Formula
-
+                    
+                    Call OutputProcess(mySheet.Name, "グラフ系列範囲 / " & mySeries.Name, myShape.Name, "'" & mySeries.Formula)
+                    
                 End If
              
             Next mySeries
@@ -479,51 +408,35 @@ Dim ChackOnActionString As String
             
                     Set ChackSheet = TargetBook.Sheets.Add
                 
-                     myShape.Copy
-                     ChackSheet.Paste
+                    myShape.Copy
+                    ChackSheet.Paste
                      
-                     If ChackSheet.DrawingObjects.LinkedCell Like "*" & TargetFileName & "*" Then
+                    If ChackSheet.DrawingObjects.LinkedCell Like "*" & TargetFileName & "*" Then
                                   
-                         TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+                        Call OutputProcess(mySheet.Name, "フォームコントロール / セル参照", myShape.Name, "'" & ChackSheet.DrawingObjects.LinkedCell)
                          
-                         OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                         OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                         OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / セル参照"
-                         OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                         OutputSheet.Cells(TargetRow, "E").Value = "'" & ChackSheet.DrawingObjects.LinkedCell
-                         
-                     End If
+                    End If
                      
-                     Application.DisplayAlerts = False
+                    Application.DisplayAlerts = False
                     
-                     ChackSheet.Delete
+                    ChackSheet.Delete
                     
-                     Application.DisplayAlerts = True
+                    Application.DisplayAlerts = True
                      
                 
                 Case Is <> xlButtonControl
                             
                     If myShape.DrawingObject.LinkedCell Like "*" & TargetFileName & "*" Then
-                              
-                        TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                        OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                        OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                        OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / リンクするセル"
-                        OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                        OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.LinkedCell
+                    
+                        Call OutputProcess(mySheet.Name, "フォームコントロール / リンクするセル", myShape.Name, "'" & myShape.DrawingObject.LinkedCell)
 
                     End If
                     
                     If myShape.FormControlType = xlListBox Or myShape.FormControlType = xlDropDown Then
             
                         If myShape.DrawingObject.ListFillRange Like "*" & TargetFileName & "*" Then
-
-                            TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                            OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                            OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                            OutputSheet.Cells(TargetRow, "C").Value = "フォームコントロール / 入力範囲"
-                            OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                            OutputSheet.Cells(TargetRow, "E").Value = "'" & myShape.DrawingObject.ListFillRange
+                        
+                            Call OutputProcess(mySheet.Name, "フォームコントロール / 入力範囲", myShape.Name, "'" & "'" & myShape.DrawingObject.ListFillRange)
 
                         End If
                         
@@ -543,13 +456,8 @@ Dim ChackOnActionString As String
         If ChackFormulaString <> "" Then
 
             If myShape.DrawingObject.Formula Like "*" & TargetFileName & "*" Then
- 
-                TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / セル参照"
-                OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                OutputSheet.Cells(TargetRow, "E").Value = myShape.DrawingObject.Formula
+                
+                Call OutputProcess(mySheet.Name, myShapeTypeName & " / セル参照", myShape.Name, "'" & "'" & myShape.DrawingObject.Formula)
     
             End If
         
@@ -561,13 +469,8 @@ Dim ChackOnActionString As String
         If ChackOnActionString <> "" Then
 
             If myShape.OnAction Like "*" & TargetFileName & "*" Then
-   
-                TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
-                OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
-                OutputSheet.Cells(TargetRow, "B").Value = mySheet.Name
-                OutputSheet.Cells(TargetRow, "C").Value = myShapeTypeName & " / マクロ登録"
-                OutputSheet.Cells(TargetRow, "D").Value = myShape.Name
-                OutputSheet.Cells(TargetRow, "E").Value = myShape.OnAction
+                
+                Call OutputProcess(mySheet.Name, myShapeTypeName & " / マクロ登録", myShape.Name, "'" & "'" & myShape.OnAction)
  
             End If
         
@@ -594,3 +497,16 @@ Dim myDropDown As DropDown
 
 End Function
 
+Private Sub OutputProcess(FindSheetName As String, FindTypeName As String, FindPlaceName As String, FindDetail As String)
+
+Dim TargetRow As Long
+
+    TargetRow = OutputSheet.Cells(Rows.Count, "A").End(xlUp).Offset(1).Row
+    OutputSheet.Cells(TargetRow, "A").Value = TargetFileName
+    OutputSheet.Cells(TargetRow, "B").Value = FindSheetName
+    OutputSheet.Cells(TargetRow, "C").Value = FindTypeName
+    OutputSheet.Cells(TargetRow, "D").Value = FindPlaceName
+    OutputSheet.Cells(TargetRow, "E").Value = FindDetail
+
+
+End Sub
