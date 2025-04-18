@@ -189,7 +189,7 @@ Dim myDic As Object
         
                     myDic.Add mySameRange.Address, mySameRange.Address
         
-                    Set myValidation = mySameRange.Validation
+                    Set myValidation = mySameRange.Cells(1).Validation
 
                     If myValidation.Formula1 Like "*" & TargetFileName & "*" Then
                         
