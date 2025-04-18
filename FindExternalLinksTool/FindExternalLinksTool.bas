@@ -65,7 +65,7 @@ Dim myDic As Object
     
     Application.ScreenUpdating = True
     
-    MsgBox "外部参照ブックリンク検索が完了しました。"
+    MsgBox "外部のブックリンク検索が完了しました。"
 
     
 End Sub
