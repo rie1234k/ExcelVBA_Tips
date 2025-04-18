@@ -347,6 +347,8 @@ Dim TargetRow As Long
     For Each mySheet In TargetBook.Worksheets
     
         For Each myShape In mySheet.Shapes
+        
+            If myShape.Visible = msoFalse Then myShape.Visible = msoCTrue
             
             Call SerchShapeProcess(mySheet, myShape)
         
@@ -376,7 +378,9 @@ Dim ChackOnActionString As String
         Case msoGroup
             
             For Each myGroupShape In myShape.GroupItems
-            
+                
+                If myGroupShape.Visible = msoFalse Then myGroupShape.Visible = msoCTrue
+                 
                 Call SerchShapeProcess(mySheet, myGroupShape)
             
             Next myGroupShape
