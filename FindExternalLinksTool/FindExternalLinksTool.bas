@@ -4,6 +4,8 @@ Option Explicit
 Private TargetBook As Workbook
 Private TargetFileName As String
 Private OutputSheet As Worksheet
+Private ChackSheet As Worksheet
+
 
 Public Sub FindExternalLinks()
 
@@ -306,6 +308,17 @@ Dim TargetRow As Long
 
     Next mySheet
     
+    'チェック用シートを作成している場合削除
+    If Not ChackSheet Is Nothing Then
+    
+        Application.DisplayAlerts = False
+                    
+        ChackSheet.Delete
+        
+        Application.DisplayAlerts = True
+    
+    End If
+    
 End Sub
 
 
@@ -317,7 +330,6 @@ Dim myGroupShape As Shape
 Dim TargetAxis As Object
 Dim AxisName As String
 Dim mySeries As Series
-Dim ChackSheet As Worksheet
 Dim ChackFormulaString As String
 Dim ChackOnActionString As String
 
@@ -406,9 +418,10 @@ Dim ChackOnActionString As String
                 
                 Case xlLabel, xlGroupBox
             
-                    Set ChackSheet = TargetBook.Sheets.Add
+                    If ChackSheet Is Nothing Then Set ChackSheet = TargetBook.Sheets.Add
                 
                     myShape.Copy
+                    Application.Wait Now() + TimeSerial(0, 0, 1)
                     ChackSheet.Paste
                      
                     If ChackSheet.DrawingObjects.LinkedCell Like "*" & TargetFileName & "*" Then
@@ -417,11 +430,8 @@ Dim ChackOnActionString As String
                          
                     End If
                      
-                    Application.DisplayAlerts = False
+                    ChackSheet.Shapes(1).Delete
                     
-                    ChackSheet.Delete
-                    
-                    Application.DisplayAlerts = True
                      
                 
                 Case Is <> xlButtonControl
