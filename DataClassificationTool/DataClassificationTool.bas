@@ -49,7 +49,7 @@ Dim i As Long
         For i = 1 To mySlicerCache.SlicerItems.Count
         
             'ğŒ“ü—Í
-            .Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Value = mySlicerCache.SlicerItems(i).Value
+            .Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Value = "'=" & mySlicerCache.SlicerItems(i).Value
             
             Set OutSheet = Worksheets.Add(after:=Worksheets(Worksheets.Count))
             Set myCriteria = .Cells(1, Columns.Count).End(xlToLeft).CurrentRegion
