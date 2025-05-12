@@ -13,7 +13,6 @@ Dim OutRange As Range
 Dim OutSheet As Worksheet
 Dim i As Long
 
-
     Application.ScreenUpdating = False
 
     With ThisWorkbook.Sheets("ÉfÅ[É^")
