@@ -32,3 +32,6 @@ ExcelVBA用マクロ集 各フォルダの説明
 
 《FindExternalLinksTool》
 リンクの自動更新が無効にされましたと表示される原因のブックのリンクを探すツール
+
+《DataClassificationTool》
+指定した列のデータを分類して項目別シートを作成するツール
