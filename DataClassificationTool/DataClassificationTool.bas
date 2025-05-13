@@ -1,6 +1,6 @@
 Attribute VB_Name = "Module1"
 Option Explicit
-Sub DataClassification()
+Public Sub DataClassification()
 
 Dim StartRange As Range
 Dim TableRange As Range
