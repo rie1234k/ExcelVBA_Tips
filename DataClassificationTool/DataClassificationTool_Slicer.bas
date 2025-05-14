@@ -9,8 +9,9 @@ Dim TargetColumn As Long
 Dim mySheet As Worksheet
 Dim TableMakeFlag As Boolean
 Dim mySlicerCache As SlicerCache
+Dim TargetItem As SlicerItem
 Dim OutSheet As Worksheet
-Dim TargetNo As Long
+
 Dim i As Long
 
     Application.ScreenUpdating = False
@@ -42,21 +43,21 @@ Dim i As Long
         'SlicerCacheを作成
         Set mySlicerCache = ThisWorkbook.SlicerCaches.Add(StartRange.ListObject, .Cells(StartRange.Row, TargetColumn).Value)
         
-        For TargetNo = 1 To mySlicerCache.SlicerItems.Count
+        For Each TargetItem In mySlicerCache.SlicerItems
             
             'スライサー項目選択（選択したい項目以外の選択を外す）
             mySlicerCache.ClearManualFilter
             For i = 1 To mySlicerCache.SlicerItems.Count
-                If i <> TargetNo Then mySlicerCache.SlicerItems(i).Selected = False
+                If mySlicerCache.SlicerItems(i).Value <> TargetItem.Value Then mySlicerCache.SlicerItems(i).Selected = False
             Next i
             
             '別シートへコピー
             Set OutSheet = Worksheets.Add(after:=Worksheets(Worksheets.Count))
             TableRange.SpecialCells(xlCellTypeVisible).Copy OutSheet.Cells(StartRange.Row, StartRange.Column)
             OutSheet.Cells.EntireColumn.AutoFit
-            OutSheet.Name = mySlicerCache.SlicerItems(TargetNo).Value
+            OutSheet.Name = TargetItem.Value
             
-        Next TargetNo
+        Next TargetItem
 
         mySlicerCache.Delete
        
