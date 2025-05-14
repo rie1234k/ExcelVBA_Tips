@@ -11,7 +11,6 @@ Dim TableMakeFlag As Boolean
 Dim mySlicerCache As SlicerCache
 Dim TargetItem As SlicerItem
 Dim OutSheet As Worksheet
-
 Dim i As Long
 
     Application.ScreenUpdating = False
@@ -51,7 +50,7 @@ Dim i As Long
                 If mySlicerCache.SlicerItems(i).Value <> TargetItem.Value Then mySlicerCache.SlicerItems(i).Selected = False
             Next i
             
-            '別シートへコピー
+            '新規シートを作成し、コピーして出力
             Set OutSheet = Worksheets.Add(after:=Worksheets(Worksheets.Count))
             TableRange.SpecialCells(xlCellTypeVisible).Copy OutSheet.Cells(StartRange.Row, StartRange.Column)
             OutSheet.Cells.EntireColumn.AutoFit
