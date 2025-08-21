@@ -35,8 +35,6 @@ Dim TitleEncode As String
 Dim Body As String
 Dim myHyperlink  As Hyperlink
 Dim TargetRow As Long
-Dim i As Long
-
     
     TargetRow = ActiveCell.Row
     
@@ -45,8 +43,7 @@ Dim i As Long
     
     '担当者名に"様"をつけて、会社名・担当者名を本文の文頭に追加
     Body = Cells(TargetRow, "H").Value & vbCrLf & Replace(Cells(TargetRow, "I"), Chr(10), " 様" & Chr(10)) & " 様" & vbCrLf & vbCrLf & Range("B4") & vbCrLf
-    
-    
+
     'クリップボードに文字列を格納
     With CreateObject("Forms.TextBox.1")
       .MultiLine = True
@@ -57,7 +54,6 @@ Dim i As Long
     End With
     
     'mailtoリンクを作成
-    
     Set myHyperlink = Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), _
                        Address:="mailto:" & Cells(TargetRow, "E") & _
                        "?cc=" & Cells(TargetRow, "F") & _
@@ -72,8 +68,6 @@ Dim i As Long
     
     '空のハイパーリンクに戻す
     Set myHyperlink = ActiveSheet.Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), Address:="", ScreenTip:="メールアドレスをクリック")
-    
-    
-      
+  
 End Sub
 
