@@ -31,17 +31,17 @@ End Sub
 
 Private Sub Worksheet_FollowHyperlink(ByVal Target As Hyperlink)
 
-Dim Title As String
+Dim TitleEncode As String
 Dim Body As String
 Dim myHyperlink  As Hyperlink
 Dim TargetRow As Long
+Dim i As Long
 
     
     TargetRow = ActiveCell.Row
     
-    '件名に改行がある場合は削除し、全角の空白を半角の空白にした後、半角の空白を「%20」にエンコード
-    '半角の「&」があるとうまく作動しないため、全角の「＆」に置き換え
-    Title = Replace(Replace(Replace(WorksheetFunction.Clean(Cells(TargetRow, "D").Value), "　", " "), " ", "%20"), "&", "＆")
+    '件名に改行がある場合は削除してエンコード
+    TitleEncode = WorksheetFunction.Clean(WorksheetFunction.EncodeURL(Cells(TargetRow, "D").Value))
     
     '担当者名に"様"をつけて、会社名・担当者名を本文の文頭に追加
     Body = Cells(TargetRow, "H").Value & vbCrLf & Replace(Cells(TargetRow, "I"), Chr(10), " 様" & Chr(10)) & " 様" & vbCrLf & vbCrLf & Range("B4") & vbCrLf
@@ -57,11 +57,12 @@ Dim TargetRow As Long
     End With
     
     'mailtoリンクを作成
+    
     Set myHyperlink = Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), _
                        Address:="mailto:" & Cells(TargetRow, "E") & _
                        "?cc=" & Cells(TargetRow, "F") & _
                        "&bcc=" & Cells(TargetRow, "G") & _
-                       "&subject=" & Title, _
+                       "&subject=" & TitleEncode, _
                        TextToDisplay:=Cells(TargetRow, "E").Value, ScreenTip:="メールアドレスをクリック")
     
     'イベントを無効化して、リンクをクリック
@@ -72,7 +73,7 @@ Dim TargetRow As Long
     '空のハイパーリンクに戻す
     Set myHyperlink = ActiveSheet.Hyperlinks.Add(Anchor:=Cells(TargetRow, "E"), Address:="", ScreenTip:="メールアドレスをクリック")
     
- 
+    
       
 End Sub
 
