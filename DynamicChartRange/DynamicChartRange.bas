@@ -170,6 +170,55 @@ End Sub
 
 
 
+Public Sub ConvertNamesToAddress()
+
+Dim TargetWorksheet As Worksheet
+Dim TargetChartObject As ChartObject
+Dim TargetSeries As Series
+Dim CharStart As Long
+Dim CharLength As Long
+Dim TargetLabelStr As String
+Dim TargetAxesStr As String
+Dim TargetSeriesStr As String
+Dim TargetSeriesIndex As String
+Dim ChangeFormula As String
+     
+     Set TargetWorksheet = ActiveSheet
+    
+     For Each TargetChartObject In TargetWorksheet.ChartObjects
+         
+         For Each TargetSeries In TargetChartObject.Chart.FullSeriesCollection
+            
+            '連続するデータのみ対象
+            If Len(TargetSeries.Formula) - Len(Replace(TargetSeries.Formula, ",", "")) = 3 Then
+
+                 CharStart = InStr(TargetSeries.FormulaLocal, "(") + 1
+                 CharLength = InStr(CharStart, TargetSeries.FormulaLocal, ",") - CharStart
+                 TargetLabelStr = Mid(TargetSeries.FormulaLocal, CharStart, CharLength)
+                 
+                 CharStart = InStr(TargetSeries.FormulaLocal, ",") + 1
+                 CharLength = InStr(CharStart, TargetSeries.FormulaLocal, ",") - CharStart
+                 TargetAxesStr = Mid(TargetSeries.FormulaLocal, CharStart, CharLength)
+                 
+                 CharStart = InStr(CharStart, TargetSeries.FormulaLocal, ",") + 1
+                 CharLength = InStr(CharStart, TargetSeries.FormulaLocal, ",") - CharStart
+                 TargetSeriesStr = Mid(TargetSeries.FormulaLocal, CharStart, CharLength)
+                 TargetSeriesIndex = Replace(Mid(TargetSeries.FormulaLocal, InStrRev(TargetSeries.FormulaLocal, ",") + 1), ")", "")
+    
+                 ChangeFormula = Replace(TargetSeries.Formula, TargetLabelStr, Range(TargetLabelStr).Address(ReferenceStyle:=xlR1C1, External:=True))
+                 ChangeFormula = Replace(ChangeFormula, TargetSeriesStr, Range(TargetSeriesStr).Address(ReferenceStyle:=xlR1C1, External:=True))
+                 If TargetAxesStr <> "" Then ChangeFormula = Replace(ChangeFormula, TargetAxesStr, Range(TargetAxesStr).Address(ReferenceStyle:=xlR1C1, External:=True))
+                 TargetSeries.FormulaR1C1Local = ChangeFormula
+             
+             End If
+             
+         Next TargetSeries
+     
+     Next TargetChartObject
+  
+     MsgBox "グラフ設定の名前定義をアドレスに変更しました"
+    
+End Sub
 
 
 
