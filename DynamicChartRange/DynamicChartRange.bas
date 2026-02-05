@@ -37,7 +37,10 @@ Dim ChangeFormula As String
     Set StartItemRange = TargetWorksheet.Range("C3") '開始項目入力セルを設定
     Set EndItemRange = TargetWorksheet.Range("C4") '終了項目入力セルを設定
     '------- 設定終了 -------
-
+     
+     'グラフを選択していると入力規則が設定できないため、セルをアクティブにする
+     TargetWorksheet.Range("A1").Activate
+     
      TargetWorksheet.Names.Add Name:=TargetWorksheet.CodeName & "_範囲開始", RefersTo:="='" & TargetWorksheet.Name & "'!" & StartItemRange.Address
      TargetWorksheet.Names.Add Name:=TargetWorksheet.CodeName & "_範囲終了", RefersTo:="='" & TargetWorksheet.Name & "'!" & EndItemRange.Address
      
