@@ -156,7 +156,9 @@ Dim ChangeFormula As String
         End Select
         
         ChangeFormula = Replace(myItem("系列").FormulaR1C1, myItem("軸ラベル範囲R1C1"), "'" & TargetWorksheet.Name & "'!" & myItem("グラフ名") & "_指定軸ラベル範囲")
+        ChangeFormula = Replace(myItem("系列").FormulaR1C1, Replace(myItem("軸ラベル範囲R1C1"), "'", ""), "'" & TargetWorksheet.Name & "'!" & myItem("グラフ名") & "_指定軸ラベル範囲")
         ChangeFormula = Replace(ChangeFormula, myItem("系列範囲R1C1"), "'" & TargetWorksheet.Name & "'!" & myItem("グラフ名") & "_" & myItem("系列名"))
+        ChangeFormula = Replace(ChangeFormula, Replace(myItem("系列範囲R1C1"), "'", ""), "'" & TargetWorksheet.Name & "'!" & myItem("グラフ名") & "_" & myItem("系列名"))
         myItem("系列").FormulaR1C1 = ChangeFormula
         
     Next myItem
