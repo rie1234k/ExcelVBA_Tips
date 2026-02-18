@@ -85,6 +85,7 @@ Dim i As Long
                 TargetChartLegendData.Add TargetChartObject.Chart.Legend.Left, "Left"
                 TargetChartLegendData.Add TargetChartObject.Chart.Legend.Border.LineStyle, "LineStyle"
                 If TargetChartObject.Chart.Legend.Border.LineStyle <> xlLineStyleNone Then
+                    TargetChartLegendData.Add TargetChartObject.Chart.Legend.Border.Weight, "LineWeight"
                     If TargetChartObject.Chart.Legend.Border.ColorIndex = xlNone Then
                         TargetChartLegendData.Add True, "BorderColorIndex"
                     Else
@@ -207,6 +208,7 @@ Dim i As Long
                             End If
                             TargetChartObject.Chart.Legend.Border.LineStyle = TargetChartLegendData("LineStyle")
                             If TargetChartLegendData("LineStyle") <> xlLineStyleNone Then
+                                TargetChartObject.Chart.Legend.Border.Weight = TargetChartLegendData("LineWeight")
                                 If TargetChartLegendData("BorderColorIndex") Then
                                     TargetChartObject.Chart.Legend.Border.ColorIndex = xlNone
                                 Else
