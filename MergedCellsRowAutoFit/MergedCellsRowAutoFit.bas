@@ -3,81 +3,74 @@ Option Explicit
 
 Public Sub MergedCellsRowAutoFit()
 
-Dim obj As Shape
+Dim iShape As Shape
 Dim TargetRange As Range
 Dim iRange As Range
 Dim AdjustHeight As Double
 
+Const MAX_ROW_HEIGHT As Double = 409.5
+Const SHAPE_MARGIN As Double = 5
+
     Application.ScreenUpdating = False
+    On Error GoTo Termination
 
     With ActiveSheet
-        
-        Set obj = .Shapes.AddLabel(msoTextOrientationHorizontal, 100, 100, 100, 100)
-        Set TargetRange = .Range(.Range("A1"), .Range("A1").SpecialCells(xlCellTypeLastCell))
-    
+        Set iShape = .Shapes.AddLabel(msoTextOrientationHorizontal, 100, 100, 100, 100)
+        Set TargetRange = .UsedRange
     End With
-     
-    obj.TextFrame2.MarginTop = 5
-    obj.TextFrame2.MarginBottom = 5
-    obj.TextFrame2.MarginLeft = 5
-    obj.TextFrame2.MarginRight = 5
-
+    
+    With iShape.TextFrame2
+        .MarginTop = SHAPE_MARGIN
+        .MarginBottom = SHAPE_MARGIN
+        .MarginLeft = SHAPE_MARGIN
+        .MarginRight = SHAPE_MARGIN
+    End With
+    
+    'êÊÇ…åãçáÇ≥ÇÍÇƒÇ¢Ç»Ç¢ÉZÉãÇÃçsÇÃçÇÇ≥Çé©ìÆí≤êÆÇ∑ÇÈ
     TargetRange.EntireRow.AutoFit
     
     For Each iRange In TargetRange
-    
-        If iRange.MergeArea.Count = 1 Then
+        
+        If iRange.MergeCells And iRange.Address = iRange.MergeArea.Cells(1, 1).Address And iRange.WrapText = True Then
         
             If iRange.Value <> "" Then
-            
-                obj.TextFrame2.TextRange.Text = iRange.Value
-            
-            End If
-        
-        Else
-        
-            If iRange.MergeArea.Value2(1, 1) <> "" Then
-            
-                obj.TextFrame2.TextRange.Text = iRange.MergeArea.Value2(1, 1)
-            
-            End If
-        
-        End If
-        
-        If obj.TextFrame2.TextRange.Text <> "" Then
-        
-            obj.Width = iRange.MergeArea.Width
-            
-            obj.TextFrame2.TextRange.Font.Name = iRange.Font.Name
-            obj.TextFrame2.TextRange.Font.NameFarEast = iRange.Font.Name
-            obj.TextFrame2.TextRange.Font.Size = iRange.Font.Size
-            obj.TextFrame2.AutoSize = msoAutoSizeShapeToFitText
-            
-            If iRange.MergeArea.Height < obj.Height Then
-            
-                AdjustHeight = iRange.RowHeight + obj.Height - iRange.MergeArea.Height
                 
-                If AdjustHeight <= 409.5 Then
-
-                    iRange.RowHeight = AdjustHeight
+                iShape.TextFrame2.TextRange.Text = iRange.Value
                 
-                Else
+                iShape.Width = iRange.MergeArea.Width
                 
-                    iRange.RowHeight = 409.5
+                With iShape.TextFrame2.TextRange.Font
+                    .Name = iRange.Font.Name
+                    .NameFarEast = iRange.Font.Name
+                    .Size = iRange.Font.Size
+                End With
                 
+                iShape.TextFrame2.AutoSize = msoAutoSizeShapeToFitText
+                
+                If iRange.MergeArea.Height < iShape.Height Then
+            
+                    AdjustHeight = iRange.RowHeight + iShape.Height - iRange.MergeArea.Height
+                
+                    If AdjustHeight <= MAX_ROW_HEIGHT Then
+                        iRange.RowHeight = AdjustHeight
+                    Else
+                        iRange.RowHeight = MAX_ROW_HEIGHT
+                    End If
+                    
                 End If
             
             End If
         
         End If
         
-        obj.TextFrame2.TextRange.Text = ""
+        iShape.TextFrame2.TextRange.Text = ""
     
     Next iRange
     
-    obj.Delete
-    Set obj = Nothing
-          
+Termination:
+    On Error Resume Next
+    If Not iShape Is Nothing Then iShape.Delete
+    Set iShape = Nothing
     Application.ScreenUpdating = True
-    
+   
 End Sub
