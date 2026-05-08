@@ -3,40 +3,53 @@ Option Explicit
 
 Public Sub GetFolderName()
 
-Dim FolderName As String
 Dim Fso As Object
-Dim iFolder As Object
-Dim subFolder As Object
-Dim iRow As Long
+Dim FolderPath As String
+Dim ShortPath As String
+Dim TargetFolder As Object
+Dim TargetSubfolder As Object
+Dim TargetRow As Long
 
     With ThisWorkbook.Sheets("フォルダ名取得")
   
         '取得場所
-        FolderName = .Range("G1").Value
+        FolderPath = .Range("G1").Value
             
         'データ消去
         .Range("A1").CurrentRegion.Offset(1).ClearContents
         
         Set Fso = CreateObject("Scripting.FileSystemObject")
         
-        'フォルダの取得
-        Set iFolder = Fso.GetFolder(ChangeShortPath(FolderName))
+        ShortPath = ChangeShortPath(FolderPath)
+        
+        If ShortPath <> "" Then
+        
+            'フォルダの取得
+            Set TargetFolder = Fso.GetFolder(ShortPath)
+                    
+            '行数
+            TargetRow = 2
+            
+            'フォルダ内のサブフォルダを処理
+            For Each TargetSubfolder In TargetFolder.SubFolders
+            
+                .Cells(TargetRow, 1).Value = FolderPath & "\" & TargetSubfolder.Name
+                .Cells(TargetRow, 2).Value = TargetSubfolder.Name
                 
-        '行数
-        iRow = 2
+                TargetRow = TargetRow + 1
+                
+            Next TargetSubfolder
         
-        'フォルダ内のサブフォルダを処理
-        For Each subFolder In iFolder.SubFolders
+        Else
         
-            .Cells(iRow, 1).Value = FolderName & "\" & subFolder.Name
-            .Cells(iRow, 2).Value = subFolder.Name
-            
-            iRow = iRow + 1
-            
-        Next subFolder
+            MsgBox FolderPath & "は存在しません。"
+        
+        End If
         
     End With
     
+    Set TargetSubfolder = Nothing
+    Set TargetFolder = Nothing
     Set Fso = Nothing
     
     
@@ -46,10 +59,11 @@ Public Sub ChangeFolderName()
 
 Dim Fso As Object
 Dim FolderFullPath As String
+Dim ChangePath As String
 Dim newFolderName As String
-Dim iRow As Long
+Dim TargetRow As Long
 
-    iRow = 2
+    TargetRow = 2
     
     Set Fso = CreateObject("Scripting.FileSystemObject")
              
@@ -58,20 +72,38 @@ Dim iRow As Long
         Do
         
             '変更前のフォルダのパスを指定
-            FolderFullPath = .Cells(iRow, "A").Value
+            FolderFullPath = .Cells(TargetRow, "A").Value
             
             '変更後のフォルダ名
-            newFolderName = .Cells(iRow, "B").Value
-    
-            'ショートパスに変換
-            FolderFullPath = ChangeShortPath(FolderFullPath)
+            newFolderName = .Cells(TargetRow, "B").Value
             
-            'フォルダ名を変更
-            Fso.GetFolder(FolderFullPath).Name = newFolderName
-        
-            iRow = iRow + 1
+            ChangePath = ChangeShortPath(FolderFullPath)
+            
+            If ChangePath <> "" Then
+                
+                'フォルダ名を変更
+                On Error Resume Next
+                
+                Fso.GetFolder(ChangePath).Name = newFolderName
+            
+                If Err.Number <> 0 Then
+                    
+                    MsgBox FolderFullPath & "の変更に失敗しました。"
+                    Err.Clear
+                
+                End If
+                
+                On Error GoTo 0
+
+            Else
+                
+                MsgBox FolderFullPath & "は存在しません。"
+            
+            End If
+            
+            TargetRow = TargetRow + 1
              
-         Loop Until .Cells(iRow, "A").Value = ""
+         Loop Until .Cells(TargetRow, "A").Value = ""
     
     End With
     

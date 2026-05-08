@@ -3,42 +3,56 @@ Option Explicit
 
 Public Sub GetFileName()
 
-Dim FolderName As String
 Dim Fso As Object
-Dim iFolder As Object
-Dim iFile As Object
-Dim iRow As Long
+Dim FolderPath As String
+Dim ShortPath As String
+Dim TargetFolder As Object
+Dim TargetFile As Object
+Dim TargetRow As Long
  
     With ThisWorkbook.Sheets("ファイル名取得")
  
         '取得場所
-        FolderName = .Range("G1").Value
+        FolderPath = .Range("G1").Value
               
         'データ消去
         .Range("A1").CurrentRegion.Offset(1).ClearContents
   
         Set Fso = CreateObject("Scripting.FileSystemObject")
+         
+        ShortPath = ChangeShortPath(FolderPath)
         
-        'フォルダの取得
-        Set iFolder = Fso.GetFolder(ChangeShortPath(FolderName))
-       
-        '行数
-        iRow = 2
-        
-        'フォルダ内のファイルを処理
-        For Each iFile In iFolder.Files
-        
-            .Cells(iRow, 1).Value = FolderName & "\" & iFile.Name
-            .Cells(iRow, 2).Value = FolderName
-            .Cells(iRow, 3).Value = iFile.Name
+        If ShortPath <> "" Then
             
-            iRow = iRow + 1
+            'フォルダの取得
+            Set TargetFolder = Fso.GetFolder(ShortPath)
+        
+            '行数
+            TargetRow = 2
             
-        Next iFile
-    
+            'フォルダ内のファイルを処理
+            For Each TargetFile In TargetFolder.Files
+            
+                .Cells(TargetRow, 1).Value = FolderPath & "\" & TargetFile.Name
+                .Cells(TargetRow, 2).Value = FolderPath
+                .Cells(TargetRow, 3).Value = TargetFile.Name
+                
+                TargetRow = TargetRow + 1
+                
+            Next TargetFile
+        
+        Else
+            
+            MsgBox FolderPath & "は存在しません。"
+        
+        End If
+ 
     End With
     
+    Set TargetFile = Nothing
+    Set TargetFolder = Nothing
     Set Fso = Nothing
+    
         
 End Sub
 
@@ -46,10 +60,11 @@ Public Sub ChangeFileName()
 
 Dim Fso As Object
 Dim FileFullPath As String
+Dim ChangePath As String
 Dim newFileName As String
-Dim iRow As Long
+Dim TargetRow As Long
 
-    iRow = 2
+    TargetRow = 2
     
     Set Fso = CreateObject("Scripting.FileSystemObject")
      
@@ -58,25 +73,45 @@ Dim iRow As Long
         Do
         
              '変更前のフルパスを指定
-             FileFullPath = .Cells(iRow, "A").Value
+             FileFullPath = .Cells(TargetRow, "A").Value
              
              '変更後のファイル名
-             newFileName = .Cells(iRow, "B").Value
+             newFileName = .Cells(TargetRow, "B").Value
              
-             'ショートパスに変換
-             FileFullPath = ChangeShortPath(FileFullPath)
-
-             'ファイル名を変更
-             Fso.GetFile(FileFullPath).Name = newFileName
-            
-             iRow = iRow + 1
+             'ショートパスに変換 ChangeShortPathは、存在しない場合、空白を返す
+             ChangePath = ChangeShortPath(FileFullPath)
              
-         Loop Until .Cells(iRow, "A").Value = ""
+             If ChangePath <> "" Then
+                
+                
+                'ファイル名を変更
+                On Error Resume Next
+                
+                Fso.GetFile(ChangePath).Name = newFileName
+                
+                If Err.Number <> 0 Then
+                    
+                    MsgBox FileFullPath & "の変更に失敗しました。"
+                    Err.Clear
+                
+                End If
+                
+                On Error GoTo 0
+                
+             Else
+             
+                MsgBox FileFullPath & "は存在しません。"
+             
+             End If
+             
+             TargetRow = TargetRow + 1
+             
+         Loop Until .Cells(TargetRow, "A").Value = ""
     
     End With
      
-     Set Fso = Nothing
+    Set Fso = Nothing
      
-     MsgBox "完了しました"
+    MsgBox "完了しました"
      
 End Sub
