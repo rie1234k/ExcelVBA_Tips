@@ -5,42 +5,56 @@ Public Sub DataClassification_Slicer()
 
 Dim StartRange As Range
 Dim TableRange As Range
-Dim TargetColumn As Long
+Dim CopyRange As Range
+Dim TargetSheet As Worksheet
+Dim HandlingSheet As Worksheet
 Dim mySheet As Worksheet
-Dim TableMakeFlag As Boolean
+Dim myListObject As ListObject
 Dim mySlicerCache As SlicerCache
 Dim TargetItem As SlicerItem
 Dim OutSheet As Worksheet
 Dim i As Long
+Dim iCount As Long
+
+Const TARGET_COLUMN As Long = 3 '分類したい項目の列番号を指定
+
+    On Error GoTo ErrHandler
 
     Application.ScreenUpdating = False
-
-    With ThisWorkbook.Sheets("データ")
+    
+    Set TargetSheet = ThisWorkbook.Sheets("データ")
+    
+    TargetSheet.Copy Before:=ThisWorkbook.Sheets(1)
+    Set HandlingSheet = ThisWorkbook.Sheets(1)
+    HandlingSheet.Name = "処理用"
+    
+    With HandlingSheet
         
         '表の開始セルを設定
         Set StartRange = .Range("A1")
         
         '表の範囲を取得
         Set TableRange = .Range(StartRange, StartRange.End(xlDown).End(xlToRight))
-        
-        '分類したい項目の列番号を指定
-        TargetColumn = 3
 
-         '不要なシートを削除
+        '不要なシートを削除
+        Application.DisplayAlerts = False
         For Each mySheet In ThisWorkbook.Worksheets
-            Application.DisplayAlerts = False
-            If mySheet.Name <> .Name Then mySheet.Delete
-            Application.DisplayAlerts = True
+            If mySheet.Name Like "分類*" Then mySheet.Delete
         Next mySheet
+        Application.DisplayAlerts = True
         
-        '表がテーブルではない場合、表の範囲をテーブルに変換
-        If StartRange.ListObject Is Nothing Then
-            .ListObjects.Add(xlSrcRange, TableRange, , xlYes).TableStyle = ""
-             TableMakeFlag = True
+        'テーブル化されている場合、いったん範囲に戻して、再度テーブル化して確実にテーブルを取得する
+        If Not StartRange.ListObject Is Nothing Then
+            StartRange.ListObject.Unlist
         End If
-           
+        
+        Set myListObject = .ListObjects.Add(xlSrcRange, TableRange, , xlYes)
+        myListObject.TableStyle = ""
+        
         'SlicerCacheを作成
-        Set mySlicerCache = ThisWorkbook.SlicerCaches.Add(StartRange.ListObject, .Cells(StartRange.Row, TargetColumn).Value)
+        Set mySlicerCache = ThisWorkbook.SlicerCaches.Add(myListObject, .Cells(StartRange.Row, TARGET_COLUMN).Value)
+        
+        iCount = 1
         
         For Each TargetItem In mySlicerCache.SlicerItems
             
@@ -51,25 +65,61 @@ Dim i As Long
             Next i
             
             '新規シートを作成し、コピーして出力
-            Set OutSheet = Worksheets.Add(after:=Worksheets(Worksheets.Count))
-            TableRange.SpecialCells(xlCellTypeVisible).Copy OutSheet.Cells(StartRange.Row, StartRange.Column)
-            OutSheet.Cells.EntireColumn.AutoFit
-            OutSheet.Name = TargetItem.Value
+            Set CopyRange = Nothing
+            On Error Resume Next
+            Set CopyRange = TableRange.SpecialCells(xlCellTypeVisible)
+            On Error GoTo ErrHandler
+            
+            If Not CopyRange Is Nothing Then
+                Set OutSheet = Worksheets.Add(after:=Worksheets(Worksheets.Count))
+                CopyRange.Copy OutSheet.Cells(StartRange.Row, StartRange.Column)
+                OutSheet.Cells.EntireColumn.AutoFit
+                OutSheet.Name = "分類" & iCount
+                iCount = iCount + 1
+            End If
             
         Next TargetItem
-
+        
         mySlicerCache.Delete
-       
-        '表の範囲をテーブルに変換した場合、テーブルを範囲に戻す
-        If TableMakeFlag Then StartRange.ListObject.Unlist
-        .Activate
+
+        Application.DisplayAlerts = False
+        .Delete
+        Application.DisplayAlerts = True
         
     End With
+
+    TargetSheet.Activate
     
     MsgBox "完了しました"
-    
+
+CleanUp:
+
+    Set TargetItem = Nothing
+    Set mySlicerCache = Nothing
+    Set myListObject = Nothing
+    Set StartRange = Nothing
+    Set TableRange = Nothing
+    Set mySheet = Nothing
+    Set OutSheet = Nothing
+    Set HandlingSheet = Nothing
+    Set TargetSheet = Nothing
+
     Application.ScreenUpdating = True
- 
+    
+    Exit Sub
+
+ErrHandler:
+    
+    MsgBox "エラーが発生したため、処理を中止します。"
+    
+    Application.DisplayAlerts = False
+    For Each mySheet In ThisWorkbook.Worksheets
+        If mySheet.Name = "処理用" Or mySheet.Name Like "分類*" Then mySheet.Delete
+    Next mySheet
+    Application.DisplayAlerts = True
+    
+    GoTo CleanUp
+    
 End Sub
 
 Public Sub DeleteSheets()
@@ -77,12 +127,11 @@ Dim mySheet As Worksheet
 
   '不要なシートを削除
         For Each mySheet In ThisWorkbook.Worksheets
-        
             Application.DisplayAlerts = False
-            If mySheet.Name <> ThisWorkbook.Sheets("データ").Name Then mySheet.Delete
+            If mySheet.Name Like "分類*" Then mySheet.Delete
             Application.DisplayAlerts = True
-        
         Next mySheet
+        
 End Sub
 
 
