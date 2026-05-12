@@ -16,7 +16,7 @@ Dim TargetRange As Range
     Set SearchWordSheet = ThisWorkbook.Sheets("検索ワード対応表")
     
     'オートフィルターが設定されている場合には解除
-    If Not TargetSheet.AutoFilter Is Nothing Then TargetSheet.Range("A1").AutoFilter
+    If TargetSheet.AutoFilterMode Then TargetSheet.AutoFilterMode = False
     
     '非表示セルを表示
     TargetSheet.Cells.EntireRow.Hidden = False
@@ -50,20 +50,20 @@ Dim TargetRange As Range
             End If
             
             'オートフィルターを解除
-            .Range("A1").AutoFilter
+            If .AutoFilterMode Then .AutoFilterMode = False
 
         Next iCount
         
     End With
     
-Termination:
+Cleanup:
     Application.StatusBar = False
     Application.ScreenUpdating = True
     Exit Sub
     
 ErrHandler:
     MsgBox "エラーが発生しました。" & vbCrLf & "( " & Err.Description & ")"
-    GoTo Termination
+    GoTo Cleanup
     
 End Sub
 
