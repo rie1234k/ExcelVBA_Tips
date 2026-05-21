@@ -33,7 +33,7 @@ Dim SearchTownName As String
 
 
     '郵便番号データダウンロード＞住所の郵便番号（CSV形式）＞読み仮名データの促音・拗音を小書きで表記するもの＞全国一括
-    TargetUrl = "https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip"
+    TargetUrl = "https://www.post.japanpost.jp/service/search/zipcode/download/kogaki/zip/ken_all.zip"
     
     'ダウンロードしたZipファイル内のCSVファイル名
     PostcodeFileName = "KEN_ALL.CSV"
