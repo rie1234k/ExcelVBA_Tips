@@ -3,7 +3,7 @@ Option Explicit
 
 Public Sub PrefNameComplement()
 
-Dim TargetUrl As String
+Dim TargetURL As String
 Dim PostcodeFileName As String
 
 Dim i As Long
@@ -33,16 +33,18 @@ Dim SearchTownName As String
 
 
     '郵便番号データダウンロード＞住所の郵便番号（CSV形式）＞読み仮名データの促音・拗音を小書きで表記するもの＞全国一括
-    TargetUrl = "https://www.post.japanpost.jp/service/search/zipcode/download/kogaki/zip/ken_all.zip"
+    TargetURL = "https://www.post.japanpost.jp/service/search/zipcode/download/kogaki/zip/ken_all.zip"
     
     'ダウンロードしたZipファイル内のCSVファイル名
     PostcodeFileName = "KEN_ALL.CSV"
     
      Application.StatusBar = "データをダウンロード中です..."
     
-    Call PostcodeZipFileDownload(TargetUrl, PostcodeFileName)
- 
- 
+    Call PostcodeZipFileDownload(TargetURL)
+    
+    'ダウンロードファイルがない場合、処理を終了する
+    If Dir(ThisWorkbook.Path & "\" & PostcodeFileName) = "" Then GoTo Cleanup
+  
     Application.StatusBar = "市区町村リスト・町域リストを作成中です..."
     
     Set ListCollection = New Collection
@@ -233,7 +235,7 @@ Dim SearchTownName As String
         End With
         
         Application.StatusBar = i & "/" & UBound(SearchList, 2) & "件目を検索中です..."
-        
+        DoEvents
     
     Next i
     
@@ -295,6 +297,7 @@ Dim SearchTownName As String
     
     End With
     
+Cleanup:
     
     Set CityListNo = Nothing
     Set TownListNo = Nothing
