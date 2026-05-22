@@ -9,6 +9,16 @@ Private Declare PtrSafe Function URLDownloadToFile Lib "urlmon" Alias "URLDownlo
 Private Declare PtrSafe Function DeleteUrlCacheEntry Lib "wininet" Alias "DeleteUrlCacheEntryA" _
 (ByVal lpszUrlName As String) As Long
 
+Public Enum AppError
+    
+    BaseNo = vbObjectError + 1000
+    
+    DownloadFailed = BaseNo + 1
+    FileNotFound = BaseNo + 2
+    ZipFailed = BaseNo + 3
+    
+End Enum
+
 
 Public Sub PostcodeZipFileDownload(TargetURL As String)
 
@@ -18,20 +28,28 @@ Dim SaveFileName As String
 Dim psCommand As String
 Dim Wsh As Object
 
+Dim errNum As Long
+Dim errSrc As String
+Dim errDesc As String
+
+Const CodeName As String = "PostcodeZipFileDownload"
+
+    On Error GoTo ErrHandler
   
     '------- ネットワーク上から郵便番号データをダウンロード -------
-    SaveFileName = Right(TargetURL, Len(TargetURL) - InStrRev(TargetURL, "/"))
+    SaveFileName = Mid(TargetURL, InStrRev(TargetURL, "/") + 1)
     
     SaveFilePath = ThisWorkbook.Path & "\" & SaveFileName
     
-    Call DeleteUrlCacheEntry(TargetURL) 'キャッシュクリア
+    DeleteUrlCacheEntry TargetURL 'キャッシュクリア
     
     iFlag = URLDownloadToFile(0, TargetURL, SaveFilePath, 0, 0)
     
-    If iFlag <> 0 Then MsgBox "ダウンロード失敗": Exit Sub
+    If iFlag <> 0 Then Err.Raise AppError.DownloadFailed, CodeName, "ファイルダウンロード失敗" & vbCrLf & "(" & TargetURL & ")"
     
-    If Dir(SaveFilePath) = "" Then MsgBox "ダウンロードファイルが存在しません": Exit Sub
-   
+    'ダウンロードファイルの存在を確認
+    If Dir(SaveFilePath) = "" Then Err.Raise AppError.FileNotFound, CodeName, "ダウンロードファイル保存失敗" & vbCrLf & "(" & SaveFilePath & ")"
+    
    '------- Zipファイルを展開 -------
     psCommand = "powershell -NoProfile -ExecutionPolicy Unrestricted Expand-Archive -Path '" & SaveFilePath & "' -DestinationPath '" & ThisWorkbook.Path & "' -Force"
     
@@ -39,9 +57,25 @@ Dim Wsh As Object
 
     iFlag = Wsh.Run(Command:=psCommand, WindowStyle:=0, WaitOnReturn:=True)
     
-    If iFlag <> 0 Then MsgBox "Zip解凍失敗": Exit Sub
+    If iFlag <> 0 Then Err.Raise AppError.ZipFailed, CodeName, "ZIPファイル解凍失敗" & vbCrLf & "(" & SaveFilePath & ")"
      
+     GoTo Cleanup
+
+ErrHandler:
+    
+    errNum = Err.Number
+    errSrc = Err.Source
+    errDesc = Err.Description
+
+    Resume Cleanup
+
+Cleanup:
+
+    On Error GoTo 0
+    
     Set Wsh = Nothing
     
+    If errNum <> 0 Then Err.Raise errNum, errSrc, errDesc
+
     
 End Sub

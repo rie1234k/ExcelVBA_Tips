@@ -30,7 +30,8 @@ Dim SearchListNo As Collection
 Dim SearchWord() As String
 Dim SearchFlag() As Boolean
 Dim SearchTownName As String
-
+    
+     On Error GoTo ErrHandler
 
     '郵便番号データダウンロード＞住所の郵便番号（CSV形式）＞読み仮名データの促音・拗音を小書きで表記するもの＞全国一括
     TargetURL = "https://www.post.japanpost.jp/service/search/zipcode/download/kogaki/zip/ken_all.zip"
@@ -42,9 +43,6 @@ Dim SearchTownName As String
     
     Call PostcodeZipFileDownload(TargetURL)
     
-    'ダウンロードファイルがない場合、処理を終了する
-    If Dir(ThisWorkbook.Path & "\" & PostcodeFileName) = "" Then GoTo Cleanup
-  
     Application.StatusBar = "市区町村リスト・町域リストを作成中です..."
     
     Set ListCollection = New Collection
@@ -145,7 +143,7 @@ Dim SearchTownName As String
             End If
         
         Next j
-
+        DoEvents
     Next i
     
     '------- 都道府県・市区町村名取得処理 -------
@@ -230,7 +228,6 @@ Dim SearchTownName As String
                     .Range("A1").AutoFilter
                 
             End Select
-        
             
         End With
         
@@ -286,9 +283,6 @@ Dim SearchTownName As String
             
         End If
         
-        
-        
-        
         '住所補完
         Call ComplementAddress(TargetSheet)
     
@@ -310,8 +304,16 @@ Cleanup:
     Application.StatusBar = False
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic
- 
     
+    Exit Sub
+    
+ErrHandler:
+
+    MsgBox "発生元：" & Err.Source & vbCrLf & _
+           "内容　：" & Err.Description
+    
+    GoTo Cleanup
+
 End Sub
 
 
@@ -352,7 +354,8 @@ Dim j As Long
                 .Cells(i, "G").Value = FullAddress
                 
             End If
-        
+            Application.StatusBar = i & "/" & endRow & "件目を処理中です..."
+            DoEvents
         Next i
         
     End With
