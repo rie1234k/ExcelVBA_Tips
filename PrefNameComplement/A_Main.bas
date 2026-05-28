@@ -324,40 +324,32 @@ Dim ReplaceAddress As String
 Dim FullAddress As String
 Dim i As Long
 Dim j As Long
-
-    endRow = TargetSheet.Cells(Rows.Count, "A").End(xlUp).Row
+Dim TargetData As Variant
+Dim Result As Variant
     
     With TargetSheet
-    
-        For i = 2 To endRow
         
-            If .Cells(i, "C").Value <> "" Then
-                
-                ReplaceAddress = .Cells(i, "A").Value
-                
-                For j = 3 To 5
-                 
-                    ReplaceAddress = Replace(ReplaceAddress, .Cells(i, j).Value, "")
-                 
-                Next j
-                
-                .Cells(i, "F").Value = ReplaceAddress
-                
+        endRow = .Cells(Rows.Count, "A").End(xlUp).Row
+        
+        ReDim Result(1 To endRow - 1, 1 To 2)
+        TargetData = .Range(.Range("A2"), .Cells(endRow, "E")).Value
+        
+        For i = 1 To UBound(TargetData, 1)
+            If TargetData(i, 3) <> "" Then
+                ReplaceAddress = TargetData(i, 1)
                 FullAddress = ""
-                
-                For j = 3 To 6
-                    
-                    FullAddress = FullAddress & .Cells(i, j).Value
-                
+                For j = 3 To 5
+                    ReplaceAddress = Replace(ReplaceAddress, TargetData(i, j), "")
+                    FullAddress = FullAddress & TargetData(i, j)
                 Next j
-
-                .Cells(i, "G").Value = FullAddress
-                
+                Result(i, 1) = ReplaceAddress
+                Result(i, 2) = FullAddress & ReplaceAddress
             End If
-            Application.StatusBar = i & "/" & endRow & "åèñ⁄ÇèàóùíÜÇ≈Ç∑..."
-            DoEvents
         Next i
+        
+        .Range(.Range("F2"), .Cells(endRow, "G")).Value = Result
         
     End With
 
 End Sub
+
