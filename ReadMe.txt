@@ -57,6 +57,10 @@ ExcelVBA用マクロ集 各フォルダの説明
 都道府県の抜けている住所から、都道府県・市区町村名を取得するツール
 
 
+《PrefNameComplement_Optimization》フォルダ
+PrefNameComplementを最適化したバージョン
+
+
 《SlicerControl》フォルダ
 データソースの異なるピボットテーブルのスライサーと連動させるマクロ
 
