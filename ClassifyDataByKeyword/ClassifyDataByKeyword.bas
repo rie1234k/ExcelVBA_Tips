@@ -2,72 +2,83 @@ Attribute VB_Name = "Module1"
 Option Explicit
 Public Sub ClassifyDataByKeyword()
 
-Dim iCount As Long
-Dim endRow As Long
-Dim SearchWordSheet As Worksheet
-Dim TargetSheet As Worksheet
+Dim MapSheet As Worksheet
+Dim DataSheet As Worksheet
+Dim TargetData As Variant
+Dim ResultData As Variant
 Dim SearchList As Variant
-Dim TargetRange As Range
-    
-    Application.ScreenUpdating = False
-    On Error GoTo ErrHandler
+Dim DataEndRow As Long
+Dim MapEndRow As Long
+Dim i As Long
+Dim j As Long
+Dim temp1 As String, temp2 As String, temp3 As Long
+Dim Data As String
+Dim Key As String
 
-    Set SearchWordSheet = ThisWorkbook.Sheets("検索ワード対応表")
-    Set TargetSheet = ThisWorkbook.Sheets("データ処理")
+    Set MapSheet = ThisWorkbook.Sheets("検索ワード対応表")
+    Set DataSheet = ThisWorkbook.Sheets("データ処理")
     
-    With SearchWordSheet
-        endRow = .Cells(.Rows.Count, "A").End(xlUp).Row
-        'A列：検索ワード　B列：入力値
-        SearchList = SearchWordSheet.Range(.Range("A2"), .Cells(endRow, "B")).Value
-    End With
-    
-    With TargetSheet
-        
-        'オートフィルターが設定されている場合には解除
+    With DataSheet
+         
+         'オートフィルターが設定されている場合には解除
         If .AutoFilterMode Then .AutoFilterMode = False
-    
         '非表示セルを表示
         .Cells.EntireRow.Hidden = False
-        
         '入力データをクリア
         .Range("A1").CurrentRegion.Offset(1, 1).ClearContents
-
-        endRow = .Cells(.Rows.Count, "A").End(xlUp).Row
         
-        For iCount = 1 To UBound(SearchList, 1)
-            
-            Application.StatusBar = "検索ワード " & iCount & "/" & UBound(SearchList, 1) & " 件処理中..."
-            
-            .Range("A1").AutoFilter Field:=1, Criteria1:="*" & SearchList(iCount, 1) & "*"
-            
-            Set TargetRange = Nothing
-            On Error Resume Next
-            Set TargetRange = .Range(.Range("B2"), .Cells(endRow, "B")).SpecialCells(xlCellTypeVisible)
-            On Error GoTo ErrHandler
-            
-            If Not TargetRange Is Nothing Then
-                TargetRange.Value = SearchList(iCount, 2)
-            End If
-            
-            'オートフィルターの条件を解除
-            If .AutoFilterMode Then
-                If .FilterMode Then .AutoFilter.ShowAllData
-            End If
-            
-        Next iCount
+        DataEndRow = .Cells(.Rows.Count, "A").End(xlUp).Row
+        TargetData = .Range(.Range("A2"), .Cells(DataEndRow, "A")).Value
+        ReDim ResultData(1 To UBound(TargetData, 1), 1 To 2)
         
     End With
     
-Cleanup:
-
-    If TargetSheet.AutoFilterMode Then TargetSheet.AutoFilterMode = False
-    Application.StatusBar = False
-    Application.ScreenUpdating = True
-    Exit Sub
+     With MapSheet
+        MapEndRow = .Cells(.Rows.Count, "A").End(xlUp).Row
+        'A列：検索ワード　B列：入力値　C列：優先順位
+        SearchList = .Range(.Range("A2"), .Cells(MapEndRow, "C")).Value
+    End With
     
-ErrHandler:
-    MsgBox "エラーが発生しました。" & vbCrLf & "( " & Err.Description & ")"
-    GoTo Cleanup
+    For i = 1 To UBound(SearchList, 1)
+        For j = i + 1 To UBound(SearchList, 1)
+            If SearchList(i, 3) > SearchList(j, 3) _
+               Or (SearchList(i, 3) = SearchList(j, 3) And Len(SearchList(i, 1)) < Len(SearchList(j, 1))) Then
+                temp1 = SearchList(i, 1)
+                temp2 = SearchList(i, 2)
+                temp3 = SearchList(i, 3)
+                SearchList(i, 1) = SearchList(j, 1)
+                SearchList(i, 2) = SearchList(j, 2)
+                SearchList(i, 3) = SearchList(j, 3)
+                SearchList(j, 1) = temp1
+                SearchList(j, 2) = temp2
+                SearchList(j, 3) = temp3
+            End If
+        Next j
+    Next i
+
+    For i = 1 To UBound(SearchList, 1)
+        Key = "*" & LCase(Trim(SearchList(i, 1))) & "*"
+        For j = 1 To UBound(TargetData, 1)
+            If TargetData(j, 1) <> "" Then
+                Data = LCase(Trim(TargetData(j, 1)))
+                If ResultData(j, 1) = "" Then
+                    If Data Like Key Then
+                        ResultData(j, 1) = SearchList(i, 2)
+                        If Data = Key Then
+                            ResultData(j, 2) = "完全一致：" & SearchList(i, 1) & "（優先度：" & SearchList(i, 3) & "）"
+                        Else
+                            ResultData(j, 2) = "部分一致：" & SearchList(i, 1) & "（優先度：" & SearchList(i, 3) & "）"
+                        End If
+                    End If
+                End If
+            End If
+        Next j
+
+    Next i
+    
+    With DataSheet
+        .Range(.Range("B2"), .Cells(DataEndRow, "C")).Value = ResultData
+    End With
     
 End Sub
 
